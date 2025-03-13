@@ -6,7 +6,7 @@ def start_client():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Get local machine name
-    host = socket.gethostname()
+    host = '192.168.168.42'
     port = 9999
 
     # Connection to server
