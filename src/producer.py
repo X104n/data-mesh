@@ -5,7 +5,7 @@ def start_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Get local machine name
-    host = socket.gethostname()
+    host = ''
     port = 9999
 
     # Bind to the port
