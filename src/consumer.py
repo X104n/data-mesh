@@ -22,7 +22,7 @@ def start_client():
     client_socket.send(number.encode('utf-8'))
 
     # Open a file to receive the data
-    with open(f'data/received_file_{number}.txt', 'wb') as file:
+    with open (f'src/data/received_file_{number}.txt', 'wb') as file:
         # Receive data in chunks
         while True:
             data = client_socket.recv(1024)
