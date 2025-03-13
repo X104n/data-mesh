@@ -1,2 +1,4 @@
 # Ignore .idea file
 /.idea
+
+weather_data_*.csv
