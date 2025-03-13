@@ -39,7 +39,6 @@ def start_server():
         with open(f"data/weather_data_{file_number}.csv", 'rb') as file:
             client_socket.send(file.read())
 
-
         # Close the connection
         client_socket.close()
         print("Connection closed")
