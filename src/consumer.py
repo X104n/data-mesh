@@ -21,6 +21,7 @@ def start_client():
     number = input('Choose what number file you wish to acess: ')
     client_socket.send(number.encode('utf-8'))
 
+
     # Open a file to receive the data
     with open (f'src/data/received_file_{number}.txt', 'wb') as file:
         # Receive data in chunks
