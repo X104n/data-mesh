@@ -14,9 +14,9 @@ def generate_weather_data(num_rows):
     return data
 
 # Generate 5 CSV files
-for i in range(1):
-    weather_data = generate_weather_data(1000000)
+for i in range(5):
+    weather_data = generate_weather_data(10000)
     df = pd.DataFrame(weather_data, columns=["Date", "Temperature (°C)", "Humidity (%)", "Precipitation (mm)"])
-    df.to_csv(f"weather_data_{i+1}.csv", index=False)
+    df.to_csv(f"data/weather_data_{i+1}.csv", index=False)
 
 print("CSV files have been generated!")

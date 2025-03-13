@@ -1,6 +1,5 @@
 # Ignore .idea file
 /.idea
 
-weather_data_*.csv
-
-/data
+# Ignore the random generated data
+/src/data

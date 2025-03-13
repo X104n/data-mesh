@@ -15,7 +15,7 @@ def start_server():
     # Queue up to 5 requests
     server_socket.listen(5)
 
-    weather_files = [f for f in os.listdir() if f.startswith('weather_data_') and f.endswith('.csv')]
+    weather_files = [f for f in os.listdir('data') if f.startswith('weather_data_') and f.endswith('.csv')]
 
     print(f"Server started on {host}:{port}")
     print("Waiting for client connection...")
@@ -36,7 +36,7 @@ def start_server():
         file_number = client_socket.recv(1024).decode('utf-8')
         print(f"Client says it want the file number: {file_number}")
 
-        with open(f"weather_data_{file_number}.csv", 'rb') as file:
+        with open(f"data/weather_data_{file_number}.csv", 'rb') as file:
             client_socket.send(file.read())
 
 
