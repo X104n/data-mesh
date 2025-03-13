@@ -13,17 +13,22 @@ def start_client():
     print(f"Attempting to connect to {host}:{port}...")
     client_socket.connect((host, port))
 
-    # Receive welcome message from server
-    welcome_msg = client_socket.recv(1024).decode('utf-8')
-    print(f"Server says: {welcome_msg}")
+    # Message from server asking what file you want
+    query = client_socket.recv(1024).decode('utf-8')
+    print(query)
 
-    # Send a message to server
-    message = "Hello from the client!"
-    client_socket.send(message.encode('utf-8'))
+    #Choosing what file you want
+    number = input('Choose what number file you wish to acess: ')
+    client_socket.send(number.encode('utf-8'))
 
-    # Receive response from server
-    response = client_socket.recv(1024).decode('utf-8')
-    print(f"Server says: {response}")
+    # Open a file to receive the data
+    with open(f'data/received_file_{number}.txt', 'wb') as file:
+        # Receive data in chunks
+        while True:
+            data = client_socket.recv(1024)
+            if not data:
+                break
+            file.write(data)
 
     # Close the connection
     client_socket.close()

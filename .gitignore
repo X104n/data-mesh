@@ -2,3 +2,5 @@
 /.idea
 
 weather_data_*.csv
+
+/data
