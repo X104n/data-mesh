@@ -13,10 +13,14 @@ def generate_weather_data(num_rows):
         data.append([date, temperature, humidity, precipitation])
     return data
 
-# Generate 5 CSV files
-for i in range(5):
-    weather_data = generate_weather_data(10000)
-    df = pd.DataFrame(weather_data, columns=["Date", "Temperature (°C)", "Humidity (%)", "Precipitation (mm)"])
-    df.to_csv(f"weather_data_{i+1}.csv", index=False)
+if __name__ == '__main__':
 
-print("CSV files have been generated!")
+    number_of_files = 5
+    number_of_rows = 10000
+
+    for i in range(number_of_files):
+        weather_data = generate_weather_data(number_of_rows)
+        df = pd.DataFrame(weather_data, columns=["Date", "Temperature (°C)", "Humidity (%)", "Precipitation (mm)"])
+        df.to_csv(f"weather_data_{i+1}.csv", index=False)
+
+    print("CSV files have been generated!")
