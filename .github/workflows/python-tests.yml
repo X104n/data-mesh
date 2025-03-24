@@ -17,7 +17,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.11'
     
     - name: Install dependencies
       run: |
@@ -27,8 +27,8 @@ jobs:
     
     - name: Run unit tests
       run: |
-        pytest tests/test_units.py -v
-    
+        pytest tests/unit-tests.py -v
+
     - name: Run integration tests
       run: |
         # Integration tests might be flaky in CI environments due to socket connections
