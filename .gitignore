@@ -2,5 +2,5 @@
 /.idea
 
 # Ignore the random generated data
-# /src/data/weather_data_*.csv
-# /src/data/received_file_*.txt
+ /src/data/weather_data_*.csv
+ /src/data/received_file_*.txt
