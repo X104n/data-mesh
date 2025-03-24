@@ -13,7 +13,7 @@ def start_server():
     # Queue up to 5 requests
     server_socket.listen(5)
 
-    weather_files = [f for f in os.listdir('data') if f.startswith('weather_data_') and f.endswith('.csv')]
+    weather_files = [f for f in os.listdir('../data') if f.startswith('weather_data_') and f.endswith('.csv')]
 
     print(f"Server started on {host}:{port}")
     print("Waiting for client connection...")
