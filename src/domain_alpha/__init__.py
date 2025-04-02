@@ -1,0 +1,1 @@
+"""Alpha domain package for the data mesh demo."""
