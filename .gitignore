@@ -4,3 +4,8 @@
 # Ignore the random generated data
  /src/data/weather_data_*.csv
  /src/data/received_file_*.txt
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class

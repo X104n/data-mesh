@@ -1,59 +1,39 @@
 """
-Discovery module for the data mesh demo.
-Maintains a registry of available domains and their connection details.
+Governance module for the data mesh demo.
+Provides basic validation and logging functions for data exchange.
 """
 
-from typing import Dict, Tuple, Optional
-
-# Simple registry mapping domain names to (host, port) tuples
-REGISTRY: Dict[str, Tuple[str, int]] = {
-    "domain_alpha": ("localhost", 9001),
-    "domain_beta": ("localhost", 9002)
-}
-
-# Minimal metadata about each domain
-DOMAIN_METADATA: Dict[str, Dict[str, str]] = {
-    "domain_alpha": {
-        "version": "1.0",
-        "description": "Alpha domain providing sample data",
-        "owner": "Alpha Team"
-    },
-    "domain_beta": {
-        "version": "1.0",
-        "description": "Beta domain consuming data from Alpha",
-        "owner": "Beta Team"
-    }
-}
+from typing import Any
 
 
-def get_domain_address(domain_name: str) -> Optional[Tuple[str, int]]:
-    """Get the (host, port) tuple for a domain.
+def verify_message(message: str) -> bool:
+    """Verify that a message meets basic requirements.
 
     Args:
-        domain_name: The name of the domain to look up
+        message: The message to verify
 
     Returns:
-        A tuple of (host, port) if the domain exists, None otherwise
+        True if the message is valid, False otherwise
+
+    Raises:
+        ValueError: If the message is not a string or is empty
     """
-    return REGISTRY.get(domain_name)
+    if not isinstance(message, str):
+        raise ValueError("Message must be a string")
+
+    if not message:
+        raise ValueError("Message cannot be empty")
+
+    print("Governance check passed for message")
+    return True
 
 
-def get_domain_metadata(domain_name: str) -> Optional[Dict[str, str]]:
-    """Get metadata for a domain.
+def log_data_exchange(source_domain: str, target_domain: str, message_type: str) -> None:
+    """Log a data exchange between domains.
 
     Args:
-        domain_name: The name of the domain to look up
-
-    Returns:
-        A dictionary of metadata if the domain exists, None otherwise
+        source_domain: The domain sending the data
+        target_domain: The domain receiving the data
+        message_type: The type of message being exchanged
     """
-    return DOMAIN_METADATA.get(domain_name)
-
-
-def list_domains() -> Dict[str, Tuple[str, int]]:
-    """List all available domains.
-
-    Returns:
-        A dictionary mapping domain names to (host, port) tuples
-    """
-    return REGISTRY.copy()
+    print(f"Data exchange: {source_domain} -> {target_domain}, type: {message_type}")
