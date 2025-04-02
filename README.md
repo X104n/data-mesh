@@ -19,7 +19,7 @@ The actual data format (plain text in this case) is not the focus of this implem
 To run the demo:
 
 ```bash
-python main.py
+python src/main.py
 ```
 
 This will start the data mesh network with domain_alpha serving as a data provider and domain_beta as a consumer.
