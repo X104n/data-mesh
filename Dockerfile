@@ -13,3 +13,5 @@ EXPOSE 9001
 ENV PYTHONUNBUFFERED=1
 
 CMD ["python", "src/main.py"]
+
+LABEL org.opencontainers.image.source=https://github.com/X104n/data-mesh
