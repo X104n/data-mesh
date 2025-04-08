@@ -1,4 +1,0 @@
-infra
-
-[dev]
-pytest>=7.0.0

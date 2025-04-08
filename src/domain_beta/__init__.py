@@ -1,1 +1,0 @@
-"""Beta domain package for the data mesh demo."""

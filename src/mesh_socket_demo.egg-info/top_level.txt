@@ -1,6 +1,0 @@
-__init__
-domain_alpha
-domain_beta
-infra
-main
-tests
