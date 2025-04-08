@@ -9,9 +9,10 @@ COPY . .
 
 EXPOSE 9000
 EXPOSE 9001
+EXPOSE 9002
 
 ENV PYTHONUNBUFFERED=1
 
-CMD ["python", "src/main.py"]
+CMD ["python", "src/main.py", "domain_alpha"]
 
 LABEL org.opencontainers.image.source=https://github.com/X104n/data-mesh
