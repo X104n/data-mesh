@@ -1,12 +1,17 @@
 """
 Domain module for the simplified data mesh demo.
 Provides a general implementation for any domain in the mesh.
+Supports running domains in separate processes that can discover and communicate with each other.
 """
 
-from typing import Dict, Optional, Tuple, Callable, List
+from typing import Dict, Optional, Tuple, Callable, List, Any
 import threading
 import time
 import socket
+import json
+import os
+import pickle
+import atexit
 
 
 class DataProduct:
@@ -74,8 +79,41 @@ class DataProduct:
         return "\n".join(result)
 
 
+# Define the registry file path - will be in the user's home directory
+REGISTRY_FILE = os.path.join(os.path.expanduser("~"), ".data_mesh_registry")
+
+def save_domain_registry(registry: Dict[str, Dict[str, Any]]) -> None:
+    """Save the domain registry to a file.
+    
+    Args:
+        registry: The registry to save
+    """
+    try:
+        with open(REGISTRY_FILE, 'wb') as f:
+            pickle.dump(registry, f)
+    except Exception as e:
+        print(f"Error saving registry: {e}")
+
+def load_domain_registry() -> Dict[str, Dict[str, Any]]:
+    """Load the domain registry from a file.
+    
+    Returns:
+        The loaded registry or an empty dict if the file doesn't exist
+    """
+    try:
+        if os.path.exists(REGISTRY_FILE):
+            with open(REGISTRY_FILE, 'rb') as f:
+                return pickle.load(f)
+    except Exception as e:
+        print(f"Error loading registry: {e}")
+    return {}
+
+
 class DomainController:
     """A generalized controller for any domain in the data mesh."""
+    
+    # Shared registry for all domain controllers
+    global_registry = load_domain_registry()
     
     def __init__(self, domain_name: str, host: str, port: int, initial_data: Dict[str, str] = None):
         """Initialize a domain controller.
@@ -100,6 +138,12 @@ class DomainController:
         # For periodic syncs
         self.sync_threads = []
         self.domain_registry = {}
+        
+        # Register this domain in the global registry
+        self._register_self()
+        
+        # Register cleanup on exit
+        atexit.register(self.stop)
     
     def start(self) -> None:
         """Start the domain server."""
@@ -161,6 +205,16 @@ class DomainController:
         finally:
             client_socket.close()
     
+    def _register_self(self) -> None:
+        """Register this domain in the global registry."""
+        DomainController.global_registry[self.domain_name] = {
+            "host": self.host,
+            "port": self.port,
+            "timestamp": time.time()
+        }
+        save_domain_registry(DomainController.global_registry)
+        print(f"[{self.domain_name}] Registered in global registry")
+
     def _process_message(self, message: str) -> str:
         """Process incoming messages and return a response.
         
@@ -171,10 +225,19 @@ class DomainController:
             A response string
         """
         try:
+            # Try to parse as JSON first (for command messages)
+            try:
+                cmd = json.loads(message)
+                if isinstance(cmd, dict) and "command" in cmd:
+                    return self._process_command(cmd)
+            except json.JSONDecodeError:
+                # Not JSON, treat as simple command
+                pass
+            
             # Log the request
             self._log_exchange("client", self.domain_name, "request")
             
-            # Process commands
+            # Process simple commands
             if message.strip().lower() == "get_data":
                 response = self.data_product.get_data()
             elif message.startswith("get_item:"):
@@ -182,6 +245,9 @@ class DomainController:
                 response = self.data_product.get_item(item_id)
             elif message.strip().lower() == "get_combined_data":
                 response = self.data_product.get_combined_data()
+            elif message.strip().lower() == "get_registry":
+                # Return the registry information
+                response = json.dumps(DomainController.global_registry)
             else:
                 response = f"Unknown command: {message}"
             
@@ -191,6 +257,39 @@ class DomainController:
             
         except Exception as e:
             return f"Error: {str(e)}"
+            
+    def _process_command(self, cmd: Dict[str, Any]) -> str:
+        """Process a command received as JSON.
+        
+        Args:
+            cmd: The command dictionary
+            
+        Returns:
+            A response string
+        """
+        command = cmd["command"]
+        
+        if command == "register_domain":
+            # Another domain is registering with this one
+            domain_name = cmd.get("domain_name")
+            host = cmd.get("host")
+            port = cmd.get("port")
+            
+            if domain_name and host and port:
+                self.register_domain(domain_name, host, port)
+                return json.dumps({"status": "success", "message": f"Registered {domain_name}"})
+            else:
+                return json.dumps({"status": "error", "message": "Missing required parameters"})
+                
+        elif command == "ping":
+            # Simple ping to check if domain is alive
+            return json.dumps({
+                "status": "success", 
+                "domain": self.domain_name,
+                "time": time.time()
+            })
+            
+        return json.dumps({"status": "error", "message": f"Unknown command: {command}"})
     
     def send_message(self, target_domain: str, host: str, port: int, message: str) -> Optional[str]:
         """Send a message to another domain.
@@ -252,8 +351,102 @@ class DomainController:
             host: The host of the domain
             port: The port of the domain
         """
+        # Check if this domain is already registered with the same details
+        if domain_name in self.domain_registry:
+            existing_host, existing_port = self.domain_registry[domain_name]
+            if existing_host == host and existing_port == port:
+                # Domain already registered with the same details, no need to register again
+                return
+                
+        # Register the domain
         self.domain_registry[domain_name] = (host, port)
         print(f"[{self.domain_name}] Registered domain {domain_name} at {host}:{port}")
+        
+        # Also notify the other domain about this domain if it's not already done
+        try:
+            # Check if the other domain needs to be notified
+            # First, check if we've already successfully notified this domain
+            if f"notified_{domain_name}" not in self.__dict__:
+                self._notify_domain(domain_name, host, port)
+                # Mark this domain as notified to prevent future notifications
+                self.__dict__[f"notified_{domain_name}"] = True
+        except Exception as e:
+            print(f"[{self.domain_name}] Error registering with {domain_name}: {e}")
+            
+    def _notify_domain(self, domain_name: str, host: str, port: int) -> None:
+        """Notify another domain about this domain.
+        
+        Args:
+            domain_name: The name of the domain to notify
+            host: The host of the domain
+            port: The port of the domain
+        """
+        # Check if this domain is already in the global registry
+        registry = load_domain_registry()
+        already_registered = False
+        
+        if domain_name in registry and self.domain_name in registry:
+            # Both domains are in the registry, so they should already know about each other
+            # No need to send a notification
+            return
+            
+        command = {
+            "command": "register_domain",
+            "domain_name": self.domain_name,
+            "host": self.host,
+            "port": self.port
+        }
+        
+        try:
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.connect((host, port))
+            client_socket.send(json.dumps(command).encode('utf-8'))
+            
+            # Wait for response with a timeout
+            client_socket.settimeout(5)
+            response = client_socket.recv(1024).decode('utf-8')
+            
+            try:
+                result = json.loads(response)
+                if result.get("status") == "success":
+                    print(f"[{self.domain_name}] Successfully registered with {domain_name}")
+                else:
+                    print(f"[{self.domain_name}] Failed to register with {domain_name}: {result.get('message')}")
+            except json.JSONDecodeError:
+                print(f"[{self.domain_name}] Received non-JSON response from {domain_name}: {response}")
+                
+        except Exception as e:
+            print(f"[{self.domain_name}] Error notifying {domain_name}: {e}")
+        finally:
+            client_socket.close()
+    
+    def discover_domains(self) -> Dict[str, Tuple[str, int]]:
+        """Discover available domains from the global registry.
+        
+        Returns:
+            A dictionary of domain names to (host, port) tuples
+        """
+        # Load the latest registry
+        registry = load_domain_registry()
+        current_time = time.time()
+        
+        # Update our local registry without triggering notifications
+        for domain_name, info in registry.items():
+            if domain_name != self.domain_name:
+                # Add directly to registry without triggering notifications
+                if domain_name not in self.domain_registry:
+                    # Verify domain is recent (within last hour)
+                    if current_time - info.get("timestamp", 0) < 3600:
+                        self.domain_registry[domain_name] = (info["host"], info["port"])
+                        print(f"Discovered domain {domain_name} at {info['host']}:{info['port']}")
+                        
+                        # Now try to notify this domain, but only once
+                        try:
+                            self._notify_domain(domain_name, info["host"], info["port"])
+                        except Exception as e:
+                            print(f"Could not connect to discovered domain {domain_name}: {e}")
+                
+        return self.domain_registry
     
     def start_periodic_sync(self, target_domain: str, interval_seconds: int = 60) -> None:
         """Start a periodic sync with another domain.
@@ -262,6 +455,18 @@ class DomainController:
             target_domain: The name of the domain to sync with
             interval_seconds: The interval between syncs in seconds
         """
+        # Avoid starting multiple syncs with the same domain
+        if hasattr(self, f"sync_running_{target_domain}") and getattr(self, f"sync_running_{target_domain}"):
+            print(f"[{self.domain_name}] Sync already running with {target_domain}")
+            return
+            
+        # First check the global registry
+        registry = load_domain_registry()
+        if target_domain in registry and target_domain != self.domain_name:
+            info = registry[target_domain]
+            self.register_domain(target_domain, info["host"], info["port"])
+        
+        # Now check our local registry
         if target_domain not in self.domain_registry:
             print(f"[{self.domain_name}] Cannot sync with unknown domain {target_domain}")
             return
@@ -272,10 +477,16 @@ class DomainController:
         thread_state = {'running': True}
         self.sync_threads.append(thread_state)
         
+        # Set flag to indicate sync is running
+        setattr(self, f"sync_running_{target_domain}", True)
+        
         def sync_job():
             while thread_state['running']:
-                print(f"[{self.domain_name}] Syncing with {target_domain}...")
-                self.fetch_data_from_domain(target_domain, host, port)
+                try:
+                    print(f"[{self.domain_name}] Syncing with {target_domain}...")
+                    self.fetch_data_from_domain(target_domain, host, port)
+                except Exception as e:
+                    print(f"[{self.domain_name}] Error syncing with {target_domain}: {e}")
                 time.sleep(interval_seconds)
         
         sync_thread = threading.Thread(target=sync_job)
