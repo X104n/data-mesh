@@ -3,21 +3,13 @@
 Main entry point for the simplified data mesh demo.
 Each instance becomes a separate domain that can discover and interact with other domains.
 
-To run multiple domains, open separate terminals and run:
-python main.py <domain_name>
-
-Examples:
-Terminal 1: python main.py domain_alpha
-Terminal 2: python main.py domain_beta 
-Terminal 3: python main.py domain_gamma
+Run this script in separate terminals and choose which domain to run when prompted.
 """
 
 import time
 import signal
 import sys
-import argparse
 import socket
-import random
 from typing import List, Dict, Any
 
 from domain import DomainController, load_domain_registry
@@ -56,15 +48,7 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 def find_available_port(start_port=9000, max_attempts=100):
-    """Find an available port starting from start_port.
-    
-    Args:
-        start_port: The port to start checking from
-        max_attempts: Maximum number of ports to check
-        
-    Returns:
-        An available port number, or None if none found
-    """
+    """Find an available port starting from start_port."""
     for port in range(start_port, start_port + max_attempts):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -74,13 +58,41 @@ def find_available_port(start_port=9000, max_attempts=100):
             continue
     return None
 
-def run_domain(domain_name):
-    """Run a single domain and wait for other domains to be discovered.
+def get_domain_choice():
+    """Prompt the user to choose or enter a domain name."""
+    print("Data Mesh Domain Selection")
+    print("=" * 50)
     
-    Args:
-        domain_name: The name of the domain to run
-    """
-    print(f"Starting Data Mesh Domain: {domain_name}")
+    # List available predefined domains
+    print("\nAvailable domains:")
+    for i, domain in enumerate(DOMAIN_DATA.keys(), 1):
+        print(f"{i}. {domain}")
+    print(f"{len(DOMAIN_DATA) + 1}. Custom domain (enter your own name)")
+    
+    # Get user choice
+    while True:
+        try:
+            choice = input("\nEnter your choice (number): ")
+            choice_num = int(choice)
+            
+            if 1 <= choice_num <= len(DOMAIN_DATA):
+                # User selected a predefined domain
+                return list(DOMAIN_DATA.keys())[choice_num - 1]
+            elif choice_num == len(DOMAIN_DATA) + 1:
+                # User wants to enter a custom domain
+                custom_name = input("Enter custom domain name: ").strip()
+                if custom_name and " " not in custom_name:
+                    return custom_name
+                else:
+                    print("Invalid domain name. Please use a single word without spaces.")
+            else:
+                print(f"Please enter a number between 1 and {len(DOMAIN_DATA) + 1}")
+        except ValueError:
+            print("Please enter a valid number")
+
+def run_domain(domain_name):
+    """Run a single domain and wait for other domains to be discovered."""
+    print(f"\nStarting Data Mesh Domain: {domain_name}")
     print("=" * 50)
     
     # Find an available port
@@ -168,37 +180,16 @@ def run_domain(domain_name):
         except KeyboardInterrupt:
             signal_handler(None, None)
 
-def run_demo():
-    """Run the complete demo with a single domain and instructions."""
-    print("Data Mesh Demo - No domains specified")
-    print("=" * 50)
-    print("\nTo run this demo properly, you need to start multiple domains in separate terminals.")
-    print("\nExamples:")
-    print("  Terminal 1: python main.py domain_alpha")
-    print("  Terminal 2: python main.py domain_beta")
-    print("  Terminal 3: python main.py custom_domain_name")
-    print("\nEach terminal will become its own domain in the mesh network.")
-    print("When multiple domains are running, they will automatically discover each other.")
-    print("\nExiting...")
-    sys.exit(0)
-
-
 if __name__ == "__main__":
     # Set up signal handler for clean shutdown
     signal.signal(signal.SIGINT, signal_handler)
     
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Run a Data Mesh domain")
-    parser.add_argument("domain", nargs="?", help="Domain name to run")
-    args = parser.parse_args()
-    
     try:
-        if args.domain:
-            # Run a single domain
-            run_domain(args.domain)
-        else:
-            # Show instructions
-            run_demo()
+        # Get domain choice from user
+        domain_name = get_domain_choice()
+        
+        # Run the selected domain
+        run_domain(domain_name)
     except Exception as e:
         print(f"Error running domain: {e}")
         # Clean up
