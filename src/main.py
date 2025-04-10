@@ -3,7 +3,7 @@
 Main entry point for the simplified data mesh demo.
 Each instance becomes a separate domain that can discover and interact with other domains.
 
-Run this script in separate terminals and choose which domain to run when prompted.
+Run this script on separate computers and choose which domain to run when prompted.
 """
 
 import time
@@ -40,6 +40,9 @@ DEFAULT_DATA = {
     "data2": "Custom domain data 2",
 }
 
+# Available IP addresses for computers in the network
+AVAILABLE_IPS = ["10.0.3.4", "10.0.3.5", "10.0.3.6", "10.0.3.7"]
+
 def signal_handler(sig, frame):
     """Handle Ctrl+C signal to gracefully shut down the domain."""
     print("\nShutting down domain...")
@@ -52,11 +55,30 @@ def find_available_port(start_port=9000, max_attempts=100):
     for port in range(start_port, start_port + max_attempts):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(('localhost', port))
+                s.bind(('0.0.0.0', port))
                 return port
         except OSError:
             continue
     return None
+
+def get_ip_choice():
+    """Prompt the user to choose their local IP address."""
+    print("\nSelect your computer's IP address:")
+    for i, ip in enumerate(AVAILABLE_IPS, 1):
+        print(f"{i}. {ip}")
+    
+    # Get user choice
+    while True:
+        try:
+            choice = input("\nEnter your choice (number): ")
+            choice_num = int(choice)
+            
+            if 1 <= choice_num <= len(AVAILABLE_IPS):
+                return AVAILABLE_IPS[choice_num - 1]
+            else:
+                print(f"Please enter a number between 1 and {len(AVAILABLE_IPS)}")
+        except ValueError:
+            print("Please enter a valid number")
 
 def get_domain_choice():
     """Prompt the user to choose or enter a domain name."""
@@ -90,9 +112,14 @@ def get_domain_choice():
         except ValueError:
             print("Please enter a valid number")
 
-def run_domain(domain_name):
-    """Run a single domain and wait for other domains to be discovered."""
-    print(f"\nStarting Data Mesh Domain: {domain_name}")
+def run_domain(domain_name, local_ip):
+    """Run a single domain and wait for other domains to be discovered.
+    
+    Args:
+        domain_name: Name of the domain to run
+        local_ip: IP address of this computer
+    """
+    print(f"\nStarting Data Mesh Domain: {domain_name} on {local_ip}")
     print("=" * 50)
     
     # Find an available port
@@ -113,14 +140,14 @@ def run_domain(domain_name):
     # Create and start the domain controller
     controller = DomainController(
         domain_name=domain_name,
-        host="localhost",
+        host=local_ip,  # Use the selected IP address
         port=port,
         initial_data=initial_data
     )
     controllers.append(controller)
     controller.start()
     
-    print(f"Domain {domain_name} started on localhost:{port}")
+    print(f"Domain {domain_name} started on {local_ip}:{port}")
     print("Waiting for other domains to connect...")
     
     # Wait for controller to start
@@ -185,11 +212,15 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     
     try:
-        # Get domain choice from user
+        # First get IP choice
+        local_ip = get_ip_choice()
+        print(f"Selected IP address: {local_ip}")
+        
+        # Then get domain choice
         domain_name = get_domain_choice()
         
         # Run the selected domain
-        run_domain(domain_name)
+        run_domain(domain_name, local_ip)
     except Exception as e:
         print(f"Error running domain: {e}")
         # Clean up

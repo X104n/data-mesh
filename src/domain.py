@@ -1,7 +1,7 @@
 """
 Domain module for the simplified data mesh demo.
 Provides a general implementation for any domain in the mesh.
-Supports running domains in separate processes that can discover and communicate with each other.
+Supports running domains in separate processes/computers that can discover and communicate with each other.
 """
 
 from typing import Dict, Optional, Tuple, Callable, List, Any
@@ -120,7 +120,7 @@ class DomainController:
         
         Args:
             domain_name: The name of this domain
-            host: The host to bind the server to
+            host: The host to bind the server to (IP address)
             port: The port to bind the server to
             initial_data: Initial data dictionary for the data product (optional)
         """
@@ -147,7 +147,8 @@ class DomainController:
     
     def start(self) -> None:
         """Start the domain server."""
-        self.server_socket.bind((self.host, self.port))
+        # Bind to all interfaces on the specified port
+        self.server_socket.bind(('0.0.0.0', self.port))
         self.server_socket.listen(5)
         self.running = True
         
@@ -442,7 +443,8 @@ class DomainController:
                         
                         # Now try to notify this domain, but only once
                         try:
-                            self._notify_domain(domain_name, info["host"], info["port"])
+                            if info["host"] != self.host or info["port"] != self.port:
+                                self._notify_domain(domain_name, info["host"], info["port"])
                         except Exception as e:
                             print(f"Could not connect to discovered domain {domain_name}: {e}")
                 
