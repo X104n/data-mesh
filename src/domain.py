@@ -289,6 +289,22 @@ class DomainController:
                 "domain": self.domain_name,
                 "time": time.time()
             })
+        
+        elif command == "broadcast_discovery":
+            # Handle broadcast discovery requests
+            domain_name = cmd.get("domain_name")
+            host = cmd.get("host")
+            port = cmd.get("port")
+            
+            if domain_name and host and port:
+                self.register_domain(domain_name, host, port)
+                # Reply with our own information
+                return json.dumps({
+                    "status": "success",
+                    "domain_name": self.domain_name,
+                    "host": self.host,
+                    "port": self.port
+                })
             
         return json.dumps({"status": "error", "message": f"Unknown command: {command}"})
     
@@ -325,7 +341,8 @@ class DomainController:
             print(f"[{self.domain_name}] Error sending message to {target_domain}: {e}")
             return None
         finally:
-            client_socket.close()
+            if 'client_socket' in locals():
+                client_socket.close()
     
     def fetch_data_from_domain(self, target_domain: str, host: str, port: int) -> bool:
         """Fetch data from another domain and store it.
@@ -386,11 +403,6 @@ class DomainController:
         registry = load_domain_registry()
         already_registered = False
         
-        if domain_name in registry and self.domain_name in registry:
-            # Both domains are in the registry, so they should already know about each other
-            # No need to send a notification
-            return
-            
         command = {
             "command": "register_domain",
             "domain_name": self.domain_name,
@@ -419,15 +431,76 @@ class DomainController:
         except Exception as e:
             print(f"[{self.domain_name}] Error notifying {domain_name}: {e}")
         finally:
-            client_socket.close()
+            if 'client_socket' in locals():
+                client_socket.close()
+    
+    def broadcast_discovery(self, target_ips=None) -> None:
+        """Broadcast discovery to find other domains across different machines.
+        
+        Args:
+            target_ips: List of IP addresses to broadcast to (None = use default range)
+        """
+        if target_ips is None:
+            # Default to common IP ranges on most networks - modify as needed
+            target_ips = [
+                "10.0.3.4", "10.0.3.5", "10.0.3.6", "10.0.3.7"
+            ]
+        
+        # Exclude our own IP
+        target_ips = [ip for ip in target_ips if ip != self.host]
+        
+        command = {
+            "command": "broadcast_discovery",
+            "domain_name": self.domain_name,
+            "host": self.host,
+            "port": self.port
+        }
+        
+        for ip in target_ips:
+            # Try common ports for potential domains
+            for port in range(9000, 9100):
+                try:
+                    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    client_socket.settimeout(0.3)  # Very short timeout for scanning
+                    client_socket.connect((ip, port))
+                    client_socket.send(json.dumps(command).encode('utf-8'))
+                    
+                    # Wait for response with a short timeout
+                    response = client_socket.recv(1024).decode('utf-8')
+                    
+                    try:
+                        result = json.loads(response)
+                        if result.get("status") == "success":
+                            domain_name = result.get("domain_name")
+                            host = result.get("host")
+                            port = result.get("port")
+                            
+                            if domain_name and host and port:
+                                self.register_domain(domain_name, host, port)
+                                print(f"[{self.domain_name}] Discovered domain {domain_name} at {host}:{port}")
+                    except json.JSONDecodeError:
+                        continue
+                        
+                except (socket.timeout, ConnectionRefusedError, OSError):
+                    # These errors are expected when scanning - just continue
+                    pass
+                except Exception as e:
+                    # Other errors might be worth logging
+                    print(f"Error during broadcast to {ip}:{port}: {e}")
+                finally:
+                    if 'client_socket' in locals():
+                        client_socket.close()
     
     def discover_domains(self) -> Dict[str, Tuple[str, int]]:
-        """Discover available domains from the global registry.
+        """Discover available domains from the global registry and network broadcast.
         
         Returns:
             A dictionary of domain names to (host, port) tuples
         """
-        # Load the latest registry
+        # First broadcast discovery to find domains on other machines
+        self.broadcast_discovery()
+        
+        # Then load the latest registry
         registry = load_domain_registry()
         current_time = time.time()
         
@@ -462,13 +535,7 @@ class DomainController:
             print(f"[{self.domain_name}] Sync already running with {target_domain}")
             return
             
-        # First check the global registry
-        registry = load_domain_registry()
-        if target_domain in registry and target_domain != self.domain_name:
-            info = registry[target_domain]
-            self.register_domain(target_domain, info["host"], info["port"])
-        
-        # Now check our local registry
+        # First check our local registry
         if target_domain not in self.domain_registry:
             print(f"[{self.domain_name}] Cannot sync with unknown domain {target_domain}")
             return

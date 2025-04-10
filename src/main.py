@@ -155,12 +155,20 @@ def run_domain(domain_name, local_ip):
     
     # Main loop - periodically check for other domains
     discovery_interval = 5  # seconds
+    broadcast_interval = 10  # seconds
     last_discovery_time = time.time()
+    last_broadcast_time = time.time()
     other_domains = []
     
     while True:
         try:
             current_time = time.time()
+            
+            # Periodically broadcast our presence to other potential domains
+            if current_time - last_broadcast_time > broadcast_interval:
+                print("\nBroadcasting discovery to find other domains...")
+                controller.broadcast_discovery()
+                last_broadcast_time = current_time
             
             # Periodically check for new domains
             if current_time - last_discovery_time > discovery_interval:
@@ -179,28 +187,29 @@ def run_domain(domain_name, local_ip):
                 if new_domains:
                     print(f"\nDiscovered {len(new_domains)} new domain(s): {', '.join(new_domains)}")
                     
-                    # Start interaction with the first new domain
-                    target_domain = new_domains[0]
-                    host, port = controller.domain_registry[target_domain]
-                    
-                    print(f"Starting interaction with {target_domain}...")
-                    
-                    # Allow time for connection to stabilize
-                    time.sleep(1)
-                    
-                    # Fetch data
-                    print(f"Fetching data from {target_domain}...")
-                    result = controller.fetch_data_from_domain(target_domain, host, port)
-                    if result:
-                        print(f"Successfully fetched data from {target_domain}")
+                    # Start interaction with each new domain
+                    for target_domain in new_domains:
+                        host, port = controller.domain_registry[target_domain]
                         
-                        # Show combined data
+                        print(f"Starting interaction with {target_domain}...")
+                        
+                        # Allow time for connection to stabilize
+                        time.sleep(1)
+                        
+                        # Fetch data
+                        print(f"Fetching data from {target_domain}...")
+                        result = controller.fetch_data_from_domain(target_domain, host, port)
+                        if result:
+                            print(f"Successfully fetched data from {target_domain}")
+                            
+                            # Start periodic sync
+                            print(f"Starting periodic sync with {target_domain}...")
+                            controller.start_periodic_sync(target_domain, interval_seconds=30)
+                    
+                    # Show combined data after all interactions
+                    if new_domains:
                         combined_data = controller.data_product.get_combined_data()
                         print(f"Combined data:\n{combined_data}")
-                        
-                        # Start periodic sync
-                        print(f"Starting periodic sync with {target_domain}...")
-                        controller.start_periodic_sync(target_domain, interval_seconds=30)
             
             time.sleep(1)
             
