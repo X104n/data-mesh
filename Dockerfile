@@ -13,6 +13,6 @@ EXPOSE 9002
 
 ENV PYTHONUNBUFFERED=1
 
-CMD ["python", "src/main.py", "domain_alpha"]
+CMD ["python", "src/main.py"]
 
 LABEL org.opencontainers.image.source=https://github.com/X104n/data-mesh
