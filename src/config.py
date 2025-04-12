@@ -7,11 +7,11 @@ import socket
 import os
 
 # Platform server configuration
-PLATFORM_HOST = "localhost"
+PLATFORM_HOST = "10.0.3.6"
 PLATFORM_PORT = 8000
 
 # Available IP addresses for computers in the network
-AVAILABLE_IPS = ["10.0.3.4", "10.0.3.5", "10.0.3.6", "10.0.3.7", "localhost"]
+AVAILABLE_IPS = ["10.0.3.4", "10.0.3.5", "10.0.3.6", "10.0.3.7"]
 
 # Default port range for domains
 DOMAIN_PORT_START = 9000
