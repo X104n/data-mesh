@@ -43,8 +43,8 @@ def parse_arguments():
     
     parser.add_argument(
         "--host", 
-        default=config.get_default_host(),
-        help=f"Host to bind the server to (default: {config.get_default_host()})"
+        default=config.PLATFORM_HOST,
+        help=f"Host to bind the server to (default: {config.PLATFORM_HOST})"
     )
     
     parser.add_argument(
