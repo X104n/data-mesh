@@ -3,7 +3,7 @@
 
 def choose_ip ():
     """Return what IP address to use for the server"""
-    from config import AVAILABLE_IP_ADDRESSES as adresses
+    from config import IP_ADDRESSES as adresses
 
     # Display the available adresses with their indices
     print("Please select from the following adresses:")
