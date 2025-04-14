@@ -1,10 +1,8 @@
-import socket
-import TUI as tui
 from config import IP_ADDRESSES
-
-
+from TUI.main import choose_from_list
 
 if __name__ == "__main__":
-    
-    a = tui.choose_from_list("Choose your ip address", IP_ADDRESSES)
-    print(IP_ADDRESSES[a])
+
+    # Get the ip address of the machine
+    chosen_ip = choose_from_list("Choose an IP address:", IP_ADDRESSES)
+    ip = IP_ADDRESSES[chosen_ip]

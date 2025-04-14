@@ -25,3 +25,6 @@ def choose_from_list(prompt_text, choices):
                 print(f"Invalid choice. Please enter a number between 1 and {len(choices)}.")
         except ValueError:
             print("Please enter a valid number.")
+
+def test():
+    return "test"
