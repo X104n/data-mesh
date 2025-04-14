@@ -1,9 +1,10 @@
-from artifact import artifact
+# from artifact import Artifact
+from src.TUI.domain_TUI import choose_gateway
 
-class Data_Product:
+class DataProduct:
 
-    def __init__(self, id, name, domain, artifacts: list[artifact]):
-        self.id = id
+    def __init__(self, data_id: int, name: str, domain: str, artifacts):
+        self.data_id = data_id
         self.name = name
         self.domain = domain
         self.artifacts = artifacts
@@ -11,7 +12,7 @@ class Data_Product:
     # Continue with getters and setters.
 
     def _get_id(self):
-        return self.id
+        return self.data_id
 
     def gateway(self):
-        pass
+        print(choose_gateway(["Gateway 1", "Gateway 2", "Gateway 3"]))
