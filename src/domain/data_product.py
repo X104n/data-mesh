@@ -1,4 +1,3 @@
-# from artifact import Artifact
 from src.TUI.domain_TUI import choose_gateway
 
 class DataProduct:

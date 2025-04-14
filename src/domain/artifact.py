@@ -1,5 +1,3 @@
-import data_product as dp
-
 class Artifact:
 
     def __init__(self, data_id, name, data_product, data: dict):

@@ -1,6 +1,7 @@
 from config import IP_ADDRESSES
 from TUI.main import choose_from_list
 from domain.data_product import DataProduct
+from domain.artifact import Artifact
 
 if __name__ == "__main__":
 
@@ -16,4 +17,16 @@ if __name__ == "__main__":
         artifacts=[],
     )
 
-    data_product.gateway()
+    # Create an Artifact
+    artifact1 = Artifact(
+        data_id=1,
+        name="Artifact 1",
+        data_product=data_product,  # This will be set later
+        data={"key": "value"},
+    )
+
+    # Set the artifact in the data_product
+
+    data_product.artifacts.append(artifact1)
+
+    print(data_product.artifacts[0].data)
