@@ -1,3 +1,5 @@
+import data_product as dp
+
 class Artifact():
 
     def __init__(self, id, name, data_product, data: dict):
@@ -8,3 +10,7 @@ class Artifact():
         self.data = data
 
     # Continue with getters and setters.
+
+    def private_test():
+        return dp._get_private("test")
+
