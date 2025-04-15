@@ -7,3 +7,9 @@ IP_ADDRESSES = [
     "10.0.3.6",
     "10.0.3.7"
 ]
+
+GATEWAYS = [
+    "discover",
+    "observe",
+    "control"
+]
