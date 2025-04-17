@@ -8,9 +8,13 @@ class Gateway:
     def choose_gateway(self):
         gate = choose_from_list("Choose one gateway: ", self.gateways)
         func = self.gateways[gate]
-        print(func)
+
+        method = getattr(self, func, None)
+        if method and callable(method):
+            method()
+        else:
+            print(f"{func} is not a valid method.")
 
 
-    def discover():
+    def discover(self):
         print("Discovering...")
-
