@@ -30,3 +30,5 @@ if __name__ == "__main__":
     data_product.artifacts.append(artifact1)
 
     print(data_product.artifacts[0].data)
+
+    data_product.access_product()

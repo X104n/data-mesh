@@ -1,4 +1,5 @@
-from src.TUI.domain_TUI import choose_gateway
+from platform_.gateway import Gateway
+from config import GATEWAYS
 
 class DataProduct:
 
@@ -8,10 +9,12 @@ class DataProduct:
         self.domain = domain
         self.artifacts = artifacts
 
+        self.gateway = Gateway(GATEWAYS)
+
     # Continue with getters and setters.
 
     def _get_id(self):
         return self.data_id
 
-    def gateway(self):
-        print(choose_gateway(["Gateway 1", "Gateway 2", "Gateway 3"]))
+    def access_product(self):
+        self.gateway.choose_gateway()
