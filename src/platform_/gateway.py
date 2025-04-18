@@ -18,3 +18,16 @@ class Gateway:
 
     def discover(self):
         print("Discovering...")
+
+    def control(self):
+        print("Controlling...")
+
+    def observe(self):
+        """May not need this function"""
+        print("Observing...")
+
+    def consume(self):
+        print("Consuming...")
+
+    def ingest(self):
+        print("Ingesting...")
