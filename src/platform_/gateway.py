@@ -32,7 +32,7 @@ class Gateway:
     def ingest(self):
         print("Ingesting...")
 
-    def autheticate(self):
+    def authenticate(self):
         """Authenticate the user"""
         print("Authenticating...")
 

@@ -1,22 +1,7 @@
-from config import IP_ADDRESSES
-from TUI.main import choose_from_list
+from config import socket_setup
 from domain.data_product import DataProduct
 from domain.artifact import Artifact
 import socket
-
-def ip_setup():
-    chosen_ip = choose_from_list("Choose an IP address:", IP_ADDRESSES)
-    ip = IP_ADDRESSES[chosen_ip]
-    return ip
-
-def socket_setup():
-    host = ip_setup()
-    port = 9000
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((host, port))
-    sock.listen(10)
-    print(f"Listening on {host}:{port}")
-    return sock
 
 def create_product(number: int):
     data_product = DataProduct(
