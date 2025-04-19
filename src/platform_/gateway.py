@@ -31,3 +31,11 @@ class Gateway:
 
     def ingest(self):
         print("Ingesting...")
+
+    def autheticate(self):
+        """Authenticate the user"""
+        print("Authenticating...")
+
+    def logging(self):
+        """Send what is going on to the logging system"""
+        print("Logging...")
