@@ -23,11 +23,13 @@ def ip_setup():
     ip = IP_ADDRESSES[chosen_ip]
     return ip
 
-def socket_setup():
-    host = ip_setup()
-    port = 9000
+def socket_setup(server=True):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((host, port))
-    sock.listen(10)
-    print(f"Listening on {host}:{port}")
+    if server:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # TODO
+        host = ip_setup()
+        port = 9000
+        sock.bind((host, port))
+        sock.listen(10)
+        print(f"Host and port {host}:{port}")
     return sock

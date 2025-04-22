@@ -23,19 +23,5 @@ def create_artifact(number: int, data_product=None, data={"key": "value"}):
 if __name__ == "__main__":
     domain_server = socket_setup()
 
-    # Make products
-    data_product = create_product(1)
-
-    # Make artifacts
-    artifact1 = create_artifact(1, data_product, {"key": "value1"})
-    artifact2 = create_artifact(2, data_product, {"key": "value2"})
-    artifact3 = create_artifact(3, data_product, {"key": "value3"})
-
-    # Set the artifact in the data_product
-    data_product.artifacts.append(artifact1)
-    data_product.artifacts.append(artifact2)
-    data_product.artifacts.append(artifact3)
-
-    print(data_product.artifacts[0].data)
-
-    data_product.access_product()
+    domain_client = socket_setup()
+    # Connect to the platform server
