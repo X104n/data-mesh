@@ -103,8 +103,10 @@ def server_consume(server_socket, products):
     # Find the corelating data product from the products list
     for product in products:
         if product.name == data:
-            # Send the data to the client
-            server_socket.sendall(product.to_dict().encode())
+            # Convert dictionary to JSON string first, then encode to bytes
+            product_dict = product.to_dict()
+            json_str = json.dumps(product_dict)
+            server_socket.sendall(json_str.encode())
             break
     else:
         server_socket.sendall(b"error")
