@@ -126,7 +126,7 @@ if __name__ == "__main__":
     prodoucts.append(data_product)
     artifact = _create_artifact(1, data_product=data_product, data={"key1": "value1"})
     data_product.artifacts.append(artifact)
-    artifact = _create_artifact(1, data_product=data_product, data={"key1": "value1"})
+    artifact = _create_artifact(5, data_product=data_product, data={"key5": "value5"})
     data_product.artifacts.append(artifact)
     
     '''
