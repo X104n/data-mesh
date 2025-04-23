@@ -104,7 +104,7 @@ def server_consume(server_socket, products):
     for product in products:
         if product.name == data:
             # Send the data to the client
-            server_socket.sendall(product.encode())
+            server_socket.sendall(product.to_dict().encode())
             break
     else:
         server_socket.sendall(b"error")
