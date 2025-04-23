@@ -28,7 +28,8 @@ def handle_client(conn):
         elif data == "hello":
             addr = conn.getpeername()[0]
             print(f"Received hello from {addr}")
-            domains.append(addr)
+            if addr not in domains:
+                domains.append(addr)
             conn.sendall(b"ok")
         elif data == "get_mesh":
             print("Sending mesh data")

@@ -2,10 +2,12 @@ from config import socket_setup
 from domain.data_product import DataProduct
 from domain.artifact import Artifact
 import time
+import threading
+import socket
 
-platform_ip = "10.0.3.5"
+platform_ip = "localhost"
 
-def create_product(number: int):
+def _create_product(number: int):
     data_product = DataProduct(
         data_id=number,
         name=f"Data Product {number}",
@@ -14,7 +16,7 @@ def create_product(number: int):
     )
     return data_product
 
-def create_artifact(number: int, data_product=None, data={"key": "value"}):
+def _create_artifact(number: int, data_product=None, data={"key": "value"}):
     artifact = Artifact(
         data_id=number,
         name=f"Artifact {number}",
@@ -36,17 +38,52 @@ def get_mesh(domain_client):
     domain_client.sendall(b"get_mesh")
     data = domain_client.recv(1024).decode()
     if data:
-        print("Received mesh data:")
-        print(data)
+        return data
     else:
         print("No data received from the mesh")
 
+def get_product(domain):
+    domain_client = socket_setup(server=False)
+    domain_client.connect((domain, 9000))
+    domain_client.sendall(b"get_product")
+    data = domain_client.recv(1024).decode()
+    if data:
+        return data
+    else:
+        print("No data received from the product")
+
+def handle_client(domain_server):
+    print("Testing")
+    
+
+def start_listening(server):
+    """Start listening, and create new thread for each connection"""
+    server.settimeout(1)
+    while True:
+        try:
+            conn, addr = server.accept()
+            print(f"Connection from {addr} has been established!")
+            
+            threading.Thread(target=handle_client, args=(conn,)).start()
+        except socket.timeout:
+            continue
+        except KeyboardInterrupt:
+            print("Server shutting down...")
+            break
+
 if __name__ == "__main__":
     #domain_server = socket_setup()
+    #start_listening(domain_server)
+
     domain_client = socket_setup(server=False)
 
     mesh_hello(domain_client)
 
     time.sleep(1)
 
-    get_mesh(domain_client)
+    domains = get_mesh(domain_client)
+
+    time.sleep(1)
+
+    product = get_product(domains)
+
