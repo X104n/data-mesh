@@ -163,6 +163,9 @@ if __name__ == "__main__":
     product = gateway.client_consume(product_name, domain, consume_client)
     print(f"Product: {product}")
 
+    with open("src/domain/test.txt", "w") as f:
+        f.write(product)
+
     '''
     ==========================
     '''
