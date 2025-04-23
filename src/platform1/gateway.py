@@ -99,11 +99,12 @@ def server_consume(server_socket, products):
 
     # Get the product name from the client
     data = server_socket.recv(1024).decode()
+    
     # Find the corelating data product from the products list
     for product in products:
         if product.name == data:
             # Send the data to the client
-            server_socket.sendall(product.data.encode())
+            server_socket.sendall(product.encode())
             break
     else:
         server_socket.sendall(b"error")
