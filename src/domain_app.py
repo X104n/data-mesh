@@ -6,6 +6,7 @@ import threading
 import socket
 import platform1.gateway as gateway
 import json
+from TUI.main import choose_from_list
 
 def _create_product(number: int):
     data_product = DataProduct(
@@ -133,15 +134,20 @@ if __name__ == "__main__":
 
     # Get product from other domains
     discover_client = socket_setup(server=False)
-    mesh_products = gateway.client_discover_products(discover_client)
+    mesh_products_json = gateway.client_discover_products(discover_client)
+    mesh_products = json.loads(mesh_products_json)
     print(f"Mesh products: {mesh_products}")
 
-    '''
+    
     # Choose a product from the mesh
-    asking_product = choose_from_list("Choose one of the mesh products",mesh_products)
+    asking_product_nr = choose_from_list("Choose one of the mesh products",mesh_products)
+    asking_product = mesh_products[asking_product_nr]
+    print(f"Chosen product: {asking_product}")
 
+
+    '''
     # Get the product from the domain
-    product = get_product(asking_product)
+    product = client_consume(asking_product)
     print(f"Product: {product}")
 
     
