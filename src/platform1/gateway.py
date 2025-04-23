@@ -1,5 +1,47 @@
 import json
 
+def client_discover_products(socket):
+    # Get platform ip from json file
+    with open("src/platform1/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+    platform_ip = marketplace["platform"]["domain"]
+
+    socket.connect((platform_ip, 9000))
+    socket.sendall(b"discover")
+    connection = socket.recv(1024).decode()
+    if connection == "ok":
+        products = socket.recv(1024).decode()
+        return products
+    else:
+        print("Error in discovering products")
+        return None
+
+def platform_discover_products(domain_server):
+    '''
+    Give the list of all available products in the mesh without disclosing the ip address of the domain.
+    '''
+
+    # Authenticate the user
+    addr = domain_server.getpeername()
+    # authenticate("discover", addr)
+
+
+    with open("src/platform1/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+    
+    # Get a list of only the products in the marketplace
+    products = []
+    for domain in marketplace:
+        if domain != "platform":
+            products.extend(marketplace[domain]["products"])
+
+    products = json.dumps(products).encode()
+    domain_server.sendall(products)
+
+    
+
+    
+
 def client_discover_registration(data_product, socket):
     
     # Get platform ip from json file
@@ -17,7 +59,7 @@ def client_discover_registration(data_product, socket):
         if response == "ok":
             print(f"Data product {data_product.name} registered successfully")
             
-def server_discover_registration(domain_server):
+def platform_discover_registration(domain_server):
     addr = domain_server.getpeername()
 
     data_product_name = domain_server.recv(1024).decode()

@@ -55,8 +55,12 @@ def handle_client(conn):
         elif data == "discover/registration":
             print("Received discover/registration")
             conn.sendall(b"ok")
-            gateway.server_discover_registration(conn)
-            
+            gateway.platform_discover_registration(conn)
+
+        elif data == "discover":
+            print("Received discover")
+            conn.sendall(b"ok")
+            gateway.platform_discover_products(conn)
 
         
         break

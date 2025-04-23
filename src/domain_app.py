@@ -115,7 +115,7 @@ if __name__ == "__main__":
     ==========================
     '''
 
-    data_product = _create_product(10)
+    data_product = _create_product(1)
     artifact = _create_artifact(1, data_product=data_product)
 
     '''
@@ -123,17 +123,20 @@ if __name__ == "__main__":
     ==========================
     '''
 
-    discover_client = socket_setup(server=False)
-    gateway.client_discover_registration(data_product, discover_client)
+    register_client = socket_setup(server=False)
+    gateway.client_discover_registration(data_product, register_client)
 
 
     '''
     ==========================
-    
+    '''
 
     # Get product from other domains
-    mesh_products = gateway.discover_products()
+    discover_client = socket_setup(server=False)
+    mesh_products = gateway.client_discover_products(discover_client)
+    print(f"Mesh products: {mesh_products}")
 
+    '''
     # Choose a product from the mesh
     asking_product = choose_from_list("Choose one of the mesh products",mesh_products)
 
