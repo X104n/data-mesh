@@ -8,10 +8,6 @@ class DataProduct:
         self.name = name
         self.domain = domain
         self.artifacts = artifacts
-
-        gateway.discover_registration(self)
-
-
         
 
     # Continue with getters and setters.

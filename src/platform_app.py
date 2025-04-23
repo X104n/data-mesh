@@ -1,4 +1,5 @@
 from config import socket_setup
+import platform1.gateway as gateway
 import threading
 import socket
 import json
@@ -50,6 +51,13 @@ def handle_client(conn):
             "Send only keys of the json file"
             mesh_data = json.dumps(list(marketplace.keys())).encode()
             conn.sendall(mesh_data)
+
+        elif data == "discover/registration":
+            print("Received discover/registration")
+            conn.sendall(b"ok")
+            gateway.server_discover_registration(conn)
+            
+
         
         break
 
@@ -68,7 +76,7 @@ if __name__ == "__main__":
     Getting the server ip address
     ====================
     '''
-    
+
     host = server.getsockname()[0]
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)

@@ -1,6 +1,7 @@
 import json
 
 def client_discover_registration(data_product, socket):
+    
     # Get platform ip from json file
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
@@ -9,6 +10,7 @@ def client_discover_registration(data_product, socket):
     socket.connect((platform_ip, 9000))
     socket.sendall(b"discover/registration")
     connection = socket.recv(1024).decode()
+    
     if connection == "ok":
         socket.sendall(data_product.name.encode())
         response = socket.recv(1024).decode()
@@ -16,9 +18,9 @@ def client_discover_registration(data_product, socket):
             print(f"Data product {data_product.name} registered successfully")
             
 def server_discover_registration(domain_server):
-    conn, addr = domain_server.accept()
+    addr = domain_server.getpeername()
 
-    data_product_name = conn.recv(1024).decode()
+    data_product_name = domain_server.recv(1024).decode()
 
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
@@ -31,9 +33,9 @@ def server_discover_registration(domain_server):
         with open("src/platform1/marketplace.json", "w") as f:
             json.dump(marketplace, f, indent=4)
         
-        conn.sendall(b"ok")
+        domain_server.sendall(b"ok")
     else:
-        conn.sendall(b"error")
+        domain_server.sendall(b"error")
 
 
 def consume(client_socket,):

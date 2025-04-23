@@ -115,7 +115,7 @@ if __name__ == "__main__":
     ==========================
     '''
 
-    data_product = _create_product(1)
+    data_product = _create_product(10)
     artifact = _create_artifact(1, data_product=data_product)
 
     '''
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     '''
 
     discover_client = socket_setup(server=False)
-    gateway.discover_registration(data_product, discover_client)
+    gateway.client_discover_registration(data_product, discover_client)
 
 
     '''
