@@ -25,20 +25,21 @@ def handle_client(conn):
         data = conn.recv(1024).decode()
         if not data:
             break
-        
-        if data == "hello":
+        elif data == "hello":
             addr = conn.getpeername()[0]
             print(f"Received hello from {addr}")
             domains.append(addr)
             conn.sendall(b"ok")
-
-        if data == "get_mesh":
+        elif data == "get_mesh":
             print("Sending mesh data")
             mesh_data = domains.encode()
             conn.sendall(mesh_data)
+        else:
+            break
 
     conn.close()
     print("Connection closed")
+    
 
 if __name__ == "__main__":
     server = socket_setup()
