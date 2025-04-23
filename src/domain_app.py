@@ -2,7 +2,7 @@ from config import socket_setup
 from domain.data_product import DataProduct
 from domain.artifact import Artifact
 
-platform_ip = "localhost"
+platform_ip = "10.0.3.5"
 
 def create_product(number: int):
     data_product = DataProduct(
