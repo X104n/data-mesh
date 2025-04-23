@@ -30,6 +30,7 @@ def mesh_hello(domain_client):
         if data == b"ok":
             print("Announced presence to the mesh")
             break
+        domain_client.close()
 
 def get_mesh(domain_client):
     domain_client.connect((platform_ip, 9000))
@@ -40,6 +41,7 @@ def get_mesh(domain_client):
         print(data)
     else:
         print("No data received from the mesh")
+    domain_client.close()
 
 if __name__ == "__main__":
     #domain_server = socket_setup()
