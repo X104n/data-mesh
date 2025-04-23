@@ -47,4 +47,4 @@ if __name__ == "__main__":
 
     mesh_hello(domain_client)
 
-    get_mesh()
+    get_mesh(domain_client)
