@@ -1,8 +1,7 @@
 from config import socket_setup
 import threading
 import socket
-
-domains = []
+import json
 
 def start_listening(server):
     """Start listening, and create new thread for each connection"""
@@ -25,15 +24,31 @@ def handle_client(conn):
         data = conn.recv(1024).decode()
         if not data:
             break
+
         elif data == "hello":
             addr = conn.getpeername()[0]
             print(f"Received hello from {addr}")
-            if addr not in domains:
-                domains.append(addr)
+
+            # Add domain to json file.
+            with open("src/platform1/marketplace.json", "r") as f:
+                marketplace = json.load(f)
+            
+            if addr not in marketplace:
+                marketplace[addr] = {
+                    "domain": addr,
+                    "products": []
+                }
+                with open("src/platform1/marketplace.json", "w") as f:
+                    json.dump(marketplace, f, indent=4)
+
             conn.sendall(b"ok")
+
         elif data == "get_mesh":
             print("Sending mesh data")
-            mesh_data = str(domains).encode()
+            with open("src/platform1/marketplace.json", "r") as f:
+                marketplace = json.load(f)
+            "Send only keys of the json file"
+            mesh_data = json.dumps(list(marketplace.keys())).encode()
             conn.sendall(mesh_data)
         
         break
@@ -43,6 +58,10 @@ def handle_client(conn):
     
 
 if __name__ == "__main__":
+    # Clear json file
+    with open("src/platform1/marketplace.json", "w") as f:
+        json.dump({}, f, indent=4)
+
     server = socket_setup()
 
     start_listening(server)

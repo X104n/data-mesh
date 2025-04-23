@@ -2,8 +2,9 @@ from config import socket_setup
 from domain.data_product import DataProduct
 from domain.artifact import Artifact
 import time
-import threading
+import threading 
 import socket
+import platform1.gateway as gateway
 
 platform_ip = "10.0.3.5"
 
@@ -43,18 +44,24 @@ def get_mesh(domain_client):
     else:
         print("No data received from the mesh")
 
-def get_product(domain):
-    domain_client = socket_setup(server=False)
-    domain_client.connect((domain, 9000))
-    domain_client.sendall(b"get_product")
-    data = domain_client.recv(1024).decode()
-    if data:
-        return data
-    else:
-        print("No data received from the product")
+def get_product(product):
+    # Get the product domain
+    product_domain = None
+
+    # Contact the domain server to get the product
+    full_product = None
+
+    return full_product
 
 def handle_client(domain_server):
-    print("Testing")
+    """Handle client connection"""
+    while True:
+        data = domain_server.recv(1024).decode()
+        if not data:
+            break
+        elif data == "consume":
+            gateway.consume()
+            
     
 
 def start_listening(server):
@@ -78,6 +85,10 @@ if __name__ == "__main__":
     domain_server = socket_setup()
     threading.Thread(target=start_listening, args=(domain_server,), daemon=True).start()
 
+    '''
+    ==========================
+    '''
+
     # Announce presence to the mesh
     domain_client = socket_setup(server=False)
     mesh_hello(domain_client)
@@ -91,13 +102,31 @@ if __name__ == "__main__":
     
     time.sleep(1)
 
+    '''
+    ==========================
+    '''
+
     # Create a product and artifact
     data_product = _create_product(1)
     artifact = _create_artifact(1, data_product=data_product)
 
-    # Get product from other domains
+    '''
+    ==========================
+    
 
-    #product = get_product(domains)
+    # Get product from other domains
+    mesh_products = gateway.discover_products()
+
+    # Choose a product from the mesh
+    asking_product = choose_from_list("Choose one of the mesh products",mesh_products)
+
+    # Get the product from the domain
+    product = get_product(asking_product)
+    print(f"Product: {product}")
+
+    
+    ==========================
+    '''
 
     try:
         while True:

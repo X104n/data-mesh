@@ -1,4 +1,4 @@
-from platform_.gateway import Gateway
+import platform1.gateway as gateway
 from config import GATEWAYS
 
 class DataProduct:
@@ -9,12 +9,12 @@ class DataProduct:
         self.domain = domain
         self.artifacts = artifacts
 
-        self.gateway = Gateway(GATEWAYS)
+        gateway.discover_registration(self)
+
+
+        
 
     # Continue with getters and setters.
 
     def _get_id(self):
         return self.data_id
-
-    def access_product(self):
-        self.gateway.choose_gateway()
