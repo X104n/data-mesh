@@ -5,7 +5,7 @@ import time
 import threading
 import socket
 
-platform_ip = "localhost"
+platform_ip = "10.0.3.5"
 
 def _create_product(number: int):
     data_product = DataProduct(
@@ -73,19 +73,29 @@ def start_listening(server):
             break
 
 if __name__ == "__main__":
+
+    # Start the domain server
     domain_server = socket_setup()
     threading.Thread(target=start_listening, args=(domain_server,), daemon=True).start()
 
+    # Announce presence to the mesh
     domain_client = socket_setup(server=False)
     mesh_hello(domain_client)
 
     time.sleep(1)
 
+    # Get available domains from platform
     domain_client = socket_setup(server=False)
     domains = get_mesh(domain_client)
     print(f"Domains: {domains}")
     
     time.sleep(1)
+
+    # Create a product and artifact
+    data_product = _create_product(1)
+    artifact = _create_artifact(1, data_product=data_product)
+
+    # Get product from other domains
 
     #product = get_product(domains)
 
