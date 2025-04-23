@@ -32,7 +32,7 @@ def handle_client(conn):
             conn.sendall(b"ok")
         elif data == "get_mesh":
             print("Sending mesh data")
-            mesh_data = domains.encode()
+            mesh_data = str(domains).encode()
             conn.sendall(mesh_data)
         else:
             break
