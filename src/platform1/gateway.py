@@ -1,6 +1,7 @@
 import json
 
 def client_discover_products(socket):
+
     # Get platform ip from json file
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
@@ -17,26 +18,24 @@ def client_discover_products(socket):
         return None
 
 def platform_discover_products(domain_server):
-    '''
-    Give the list of all available products in the mesh without disclosing the ip address of the domain.
-    '''
 
-    # Authenticate the user
+    # TODO Authenticate the user
     addr = domain_server.getpeername()
     # authenticate("discover", addr)
-
 
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
     
-    # Get a list of only the products in the marketplace
-    products = []
+    # Create a list with product-domain pairs
+    product_domain_pairs = []
     for domain in marketplace:
         if domain != "platform":
-            products.extend(marketplace[domain]["products"])
-
-    products = json.dumps(products).encode()
-    domain_server.sendall(products)
+            for product in marketplace[domain]["products"]:
+                product_domain_pairs.append([product, domain])
+    
+    # Convert to JSON and send
+    json_data = json.dumps(product_domain_pairs).encode()
+    domain_server.sendall(json_data)
 
     
 
@@ -80,8 +79,31 @@ def platform_discover_registration(domain_server):
         domain_server.sendall(b"error")
 
 
-def consume(client_socket,):
-    """Consume data from the mesh"""
-    # Connect to the mesh and consume data
-    print("Consuming data from the mesh...")
-    pass
+def client_consume(product_name, product_domain, client_socket):
+    
+    client_socket.connect((product_domain, 9000))
+    client_socket.sendall(b"consume")
+    connection = client_socket.recv(1024).decode()
+    if connection == "ok":
+        client_socket.sendall(product_name.encode())
+        data = client_socket.recv(1024).decode()
+        return data
+    else:
+        print("Error in consuming data")
+        return None
+
+def server_consume(server_socket, products):
+    # TODO Authenticate the user
+    addr = server_socket.getpeername()
+    # authenticate("consume", addr)
+
+    # Get the product name from the client
+    data = server_socket.recv(1024).decode()
+    # Find the corelating data product from the products list
+    for product in products:
+        if product.name == data:
+            # Send the data to the client
+            server_socket.sendall(product.data.encode())
+            break
+    else:
+        server_socket.sendall(b"error")

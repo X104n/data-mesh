@@ -65,10 +65,9 @@ def handle_client(conn):
         
         break
 
+    print(f"Closing connection with {conn.getpeername()[0]}")
     conn.close()
-    print("Connection closed")
     
-
 if __name__ == "__main__":
     # Clear json file
     with open("src/platform1/marketplace.json", "w") as f:

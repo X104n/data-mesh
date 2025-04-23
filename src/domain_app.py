@@ -8,6 +8,8 @@ import platform1.gateway as gateway
 import json
 from TUI.main import choose_from_list
 
+prodoucts = []
+
 def _create_product(number: int):
     data_product = DataProduct(
         data_id=number,
@@ -61,8 +63,14 @@ def handle_client(domain_server):
         if not data:
             break
         elif data == "consume":
-            gateway.consume()
-            
+            print("Received consume request")
+            domain_server.sendall(b"ok")
+            gateway.server_consume(domain_server, prodoucts)
+        break
+    
+    print(f"Connection with {domain_server.getpeername()[0]} closed")
+    domain_server.close()
+    
     
 
 def start_listening(server):
@@ -117,8 +125,12 @@ if __name__ == "__main__":
     '''
 
     data_product = _create_product(1)
-    artifact = _create_artifact(1, data_product=data_product)
-
+    prodoucts.append(data_product)
+    artifact = _create_artifact(1, data_product=data_product, data={"key1": "value1"})
+    data_product.artifacts.append(artifact)
+    artifact = _create_artifact(1, data_product=data_product, data={"key1": "value1"})
+    data_product.artifacts.append(artifact)
+    
     '''
     Make the data product discoverable
     ==========================
@@ -145,12 +157,15 @@ if __name__ == "__main__":
     print(f"Chosen product: {asking_product}")
 
 
-    '''
+    
     # Get the product from the domain
-    product = client_consume(asking_product)
+    consume_client = socket_setup(server=False)
+    product_name = asking_product[0]
+    domain = asking_product[1]
+    product = gateway.client_consume(product_name, domain, consume_client)
     print(f"Product: {product}")
 
-    
+    '''
     ==========================
     '''
 
