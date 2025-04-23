@@ -35,8 +35,8 @@ def handle_client(conn):
             print("Sending mesh data")
             mesh_data = str(domains).encode()
             conn.sendall(mesh_data)
-        else:
-            break
+        
+        break
 
     conn.close()
     print("Connection closed")

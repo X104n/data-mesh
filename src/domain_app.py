@@ -35,10 +35,11 @@ def mesh_hello(domain_client):
         break
 
 def get_mesh(domain_client):
+    domain_client.connect((platform_ip, 9000))
     domain_client.sendall(b"get_mesh")
-    data = domain_client.recv(1024).decode()
+    data = domain_client.recv(1024)
     if data:
-        return data
+        return data.decode()
     else:
         print("No data received from the mesh")
 
@@ -72,18 +73,24 @@ def start_listening(server):
             break
 
 if __name__ == "__main__":
-    #domain_server = socket_setup()
-    #start_listening(domain_server)
+    domain_server = socket_setup()
+    threading.Thread(target=start_listening, args=(domain_server,), daemon=True).start()
 
     domain_client = socket_setup(server=False)
-
     mesh_hello(domain_client)
 
     time.sleep(1)
 
+    domain_client = socket_setup(server=False)
     domains = get_mesh(domain_client)
-
+    print(f"Domains: {domains}")
+    
     time.sleep(1)
 
-    product = get_product(domains)
+    #product = get_product(domains)
 
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Shutting down...")
