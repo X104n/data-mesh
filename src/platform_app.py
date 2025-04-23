@@ -64,4 +64,23 @@ if __name__ == "__main__":
 
     server = socket_setup()
 
+    '''
+    Getting the server ip address
+    ====================
+    '''
+    
+    host = server.getsockname()[0]
+    with open("src/platform1/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+    if "platform" not in marketplace:
+        marketplace["platform"] = {
+            "domain": host,
+            "products": []
+        }
+        with open("src/platform1/marketplace.json", "w") as f:
+            json.dump(marketplace, f, indent=4)
+    print(f"Host and port {host}:{server.getsockname()[1]}")
+    '''
+    ====================
+    '''
     start_listening(server)

@@ -5,8 +5,7 @@ import time
 import threading 
 import socket
 import platform1.gateway as gateway
-
-platform_ip = "10.0.3.5"
+import json
 
 def _create_product(number: int):
     data_product = DataProduct(
@@ -15,6 +14,7 @@ def _create_product(number: int):
         domain=f"Domain {number}",
         artifacts=[],
     )
+
     return data_product
 
 def _create_artifact(number: int, data_product=None, data={"key": "value"}):
@@ -80,6 +80,14 @@ def start_listening(server):
             break
 
 if __name__ == "__main__":
+    '''
+    Getting the platform IP
+    ===========================
+    '''
+
+    with open("src/platform1/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+    platform_ip = marketplace["platform"]["domain"]
 
     # Start the domain server
     domain_server = socket_setup()
@@ -103,12 +111,21 @@ if __name__ == "__main__":
     time.sleep(1)
 
     '''
+    Create a data product and artifact
     ==========================
     '''
 
-    # Create a product and artifact
     data_product = _create_product(1)
     artifact = _create_artifact(1, data_product=data_product)
+
+    '''
+    Make the data product discoverable
+    ==========================
+    '''
+
+    discover_client = socket_setup(server=False)
+    gateway.discover_registration(data_product, discover_client)
+
 
     '''
     ==========================
