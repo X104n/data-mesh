@@ -94,9 +94,7 @@ if __name__ == "__main__":
     ===========================
     '''
 
-    with open("src/platform1/marketplace.json", "r") as f:
-        marketplace = json.load(f)
-    platform_ip = marketplace["platform"]["domain"]
+    platform_ip = "10.0.3.5"
 
     # Start the domain server
     domain_server = socket_setup()
