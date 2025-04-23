@@ -16,7 +16,7 @@ def handle_client(conn):
         if not data:
             break
         print(f"Received data: {data.decode()}")
-        conn.sendall(data)  # Echo back the received data
+        conn.sendall(b"ok")  # Echo back the received data
 
     conn.close()
     print("Connection closed")

@@ -1,7 +1,9 @@
-
 class Logger:
+
+
     def __init__(self, name: str):
         self.name = name
+        self.domains = []
 
     def log(self, message: str):
         print(f"[{self.name}] {message}")
