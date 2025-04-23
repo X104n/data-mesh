@@ -1,6 +1,7 @@
 from config import socket_setup
 from domain.data_product import DataProduct
 from domain.artifact import Artifact
+import os
 
 platform_ip = "10.0.3.5"
 
@@ -48,5 +49,7 @@ if __name__ == "__main__":
     domain_client = socket_setup(server=False)
 
     mesh_hello(domain_client)
+
+    os.sleep(1)
 
     get_mesh(domain_client)
