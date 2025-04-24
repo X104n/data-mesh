@@ -1,2 +1,0 @@
-pyserial==3.5
-sortedcontainers==2.4.0
