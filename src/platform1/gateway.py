@@ -1,12 +1,14 @@
 import json
 
 def client_discover_products(socket):
+    """Used by a client socket to discover products from the marketplace"""
 
-    # Get platform ip from json file
+    # Get platform ip from the JSON file
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
     platform_ip = marketplace["platform"]["domain"]
 
+    # Connect to the platform and get the mesh products
     socket.connect((platform_ip, 9000))
     socket.sendall(b"discover")
     connection = socket.recv(1024).decode()
@@ -23,10 +25,11 @@ def platform_discover_products(domain_server):
     addr = domain_server.getpeername()
     # authenticate("discover", addr)
 
+    # Get the mesh products from the marketplace JSON file
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
     
-    # Create a list with product-domain pairs
+    # Create a list with (product, domain) pairs
     product_domain_pairs = []
     for domain in marketplace:
         if domain != "platform":
@@ -37,21 +40,17 @@ def platform_discover_products(domain_server):
     json_data = json.dumps(product_domain_pairs).encode()
     domain_server.sendall(json_data)
 
-    
-
-    
-
 def client_discover_registration(data_product, socket):
     
-    # Get platform ip from json file
+    # Get platform ip from the JSON file
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
     platform_ip = marketplace["platform"]["domain"]
 
+    # Connect to the platform and register the data product in the marketplace
     socket.connect((platform_ip, 9000))
     socket.sendall(b"discover/registration")
     connection = socket.recv(1024).decode()
-    
     if connection == "ok":
         socket.sendall(data_product.name.encode())
         response = socket.recv(1024).decode()
@@ -59,21 +58,21 @@ def client_discover_registration(data_product, socket):
             print(f"Data product {data_product.name} registered successfully")
             
 def platform_discover_registration(domain_server):
+
+    # Get the address / ip of the domain server.
     addr = domain_server.getpeername()
 
+    # Get the data product name from the client
     data_product_name = domain_server.recv(1024).decode()
 
+    # Adding the product to the marketplace and the domain if it doesn't exist
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
-    
     if addr[0] in marketplace:
-        
         if data_product_name not in marketplace[addr[0]]["products"]:
             marketplace[addr[0]]["products"].append(data_product_name)
-
         with open("src/platform1/marketplace.json", "w") as f:
             json.dump(marketplace, f, indent=4)
-        
         domain_server.sendall(b"ok")
     else:
         domain_server.sendall(b"error")
@@ -100,7 +99,7 @@ def server_consume(server_socket, products):
     # Get the product name from the client
     data = server_socket.recv(1024).decode()
     
-    # Find the corelating data product from the products list
+    # Find the correlating data product from the product list
     for product in products:
         if product.name == data:
             # Convert dictionary to JSON string first, then encode to bytes

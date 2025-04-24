@@ -1,5 +1,3 @@
-"""Authenticator server"""
-
 class Authenticator:
 
     def __init__(self, socket):

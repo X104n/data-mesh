@@ -118,7 +118,7 @@ if __name__ == "__main__":
     time.sleep(1)
 
     '''
-    Create a data product and artifact
+    Create a data product and artifacts
     ==========================
     '''
 
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     ==========================
     '''
 
-    # Get product from other domains
+    # Visit the marketplace to get all the mesh products
     discover_client = socket_setup(server=False)
     mesh_products_json = gateway.client_discover_products(discover_client)
     mesh_products = json.loads(mesh_products_json)
