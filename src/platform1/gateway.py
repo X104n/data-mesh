@@ -101,8 +101,6 @@ def server_consume(server_socket, products, client_socket):
         server_socket.sendall(b"error")
         return
 
-    server_socket.sendall(b"ok")
-
     # Get the product name from the client
     data = server_socket.recv(1024).decode()
     
