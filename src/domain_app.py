@@ -17,7 +17,6 @@ def _create_product(number: int):
         domain=f"Domain {number}",
         artifacts=[],
     )
-
     return data_product
 
 def _create_artifact(number: int, data_product=None, data={"key": "value"}):
@@ -46,15 +45,6 @@ def get_mesh(domain_client):
         return data.decode()
     else:
         print("No data received from the mesh")
-
-def get_product(product):
-    # Get the product domain
-    product_domain = None
-
-    # Contact the domain server to get the product
-    full_product = None
-
-    return full_product
 
 def handle_client(domain_server):
     """Handle client connection"""
