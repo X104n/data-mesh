@@ -76,22 +76,29 @@ def platform_discover_registration(domain_server):
 
 
 def client_consume(product_name, product_domain, client_socket):
-    
-    client_socket.connect((product_domain, 9000))
-    client_socket.sendall(b"consume")
-    connection = client_socket.recv(1024).decode()
-    if connection == "ok":
-        client_socket.sendall(product_name.encode())
-        data = client_socket.recv(1024).decode()
-        return data
-    else:
-        print("Error in consuming data")
+    try:
+        client_socket.connect((product_domain, 9000))
+        client_socket.sendall(b"consume")
+        connection = client_socket.recv(1024).decode()
+        if connection == "ok":
+            client_socket.sendall(product_name.encode())
+            data = client_socket.recv(1024).decode()
+            return data
+        else:
+            print("Error in consuming data")
+            return None
+    except ConnectionResetError:
+        print("Connection reset by peer")
+        return None
+    except Exception as e:
+        print(f"Error in client consume: {e}")
         return None
 
 def server_consume(server_socket, products, client_socket):
     # Authenticate the user
     addr = server_socket.getpeername()[0]
     if not client_authenticate("consume", addr, client_socket):
+        server_socket.sendall(b"error")
         return
 
     server_socket.sendall(b"ok")
