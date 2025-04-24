@@ -65,7 +65,8 @@ def handle_client(domain_server):
         elif data == "consume":
             print("Received consume request")
             domain_server.sendall(b"ok")
-            gateway.server_consume(domain_server, prodoucts)
+            auth_client_socket = socket_setup(server=False)
+            gateway.server_consume(domain_server, prodoucts, auth_client_socket)
         break
     
     print(f"Connection with {domain_server.getpeername()[0]} closed")

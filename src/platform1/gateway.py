@@ -1,4 +1,5 @@
 import json
+from auth import client_authenticate
 
 def client_discover_products(socket):
     """Used by a client socket to discover products from the marketplace"""
@@ -20,10 +21,6 @@ def client_discover_products(socket):
         return None
 
 def platform_discover_products(domain_server):
-
-    # TODO Authenticate the user
-    addr = domain_server.getpeername()
-    # authenticate("discover", addr)
 
     # Get the mesh products from the marketplace JSON file
     with open("src/platform1/marketplace.json", "r") as f:
@@ -60,7 +57,7 @@ def client_discover_registration(data_product, socket):
 def platform_discover_registration(domain_server):
 
     # Get the address / ip of the domain server.
-    addr = domain_server.getpeername()
+    addr = domain_server.getpeername()[0]
 
     # Get the data product name from the client
     data_product_name = domain_server.recv(1024).decode()
@@ -68,9 +65,9 @@ def platform_discover_registration(domain_server):
     # Adding the product to the marketplace and the domain if it doesn't exist
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
-    if addr[0] in marketplace:
-        if data_product_name not in marketplace[addr[0]]["products"]:
-            marketplace[addr[0]]["products"].append(data_product_name)
+    if addr in marketplace:
+        if data_product_name not in marketplace[addr]["products"]:
+            marketplace[addr]["products"].append(data_product_name)
         with open("src/platform1/marketplace.json", "w") as f:
             json.dump(marketplace, f, indent=4)
         domain_server.sendall(b"ok")
@@ -91,10 +88,13 @@ def client_consume(product_name, product_domain, client_socket):
         print("Error in consuming data")
         return None
 
-def server_consume(server_socket, products):
-    # TODO Authenticate the user
-    addr = server_socket.getpeername()
-    # authenticate("consume", addr)
+def server_consume(server_socket, products, client_socket):
+    # Authenticate the user
+    addr = server_socket.getpeername()[0]
+    if not client_authenticate("consume", addr, client_socket):
+        return
+
+    server_socket.sendall(b"ok")
 
     # Get the product name from the client
     data = server_socket.recv(1024).decode()
