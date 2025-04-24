@@ -1,0 +1,12 @@
+{
+    "platform": {
+        "domain": "127.0.0.1",
+        "products": []
+    },
+    "127.0.0.1": {
+        "domain": "127.0.0.1",
+        "products": [
+            "Data Product 1"
+        ]
+    }
+}

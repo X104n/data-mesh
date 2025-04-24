@@ -1,1 +1,0 @@
-"""Plarform module for the application."""
