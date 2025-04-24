@@ -1,5 +1,5 @@
 import json
-from auther import client_authenticate
+from .auther import client_authenticate
 
 def client_discover_products(socket):
     """Used by a client socket to discover products from the marketplace"""
