@@ -63,6 +63,14 @@ def handle_client(conn):
                 conn.sendall(b"ok")
                 gateway.platform_discover_products(conn)
 
+            elif data == "authenticate":
+                print("Received authentication request")
+                conn.sendall(b"ok")
+                if not gateway.server_authenticate(conn):
+                    print("Authentication failed")
+                    conn.sendall(b"error")
+                    break
+                conn.sendall(b"ok")
 
             break
     except Exception as e:

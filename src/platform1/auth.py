@@ -10,8 +10,8 @@ def client_authenticate(action, addr_to_check, socket):
 
     socket.connect((platform_ip, 9000))
     socket.sendall("authenticate".encode())
-    data = socket.recv(1024).decode()
-    if data == "ok":
+    connection = socket.recv(1024).decode()
+    if connection == "ok":
         # Send the action and address to check
         socket.sendall(f"{action}/{addr_to_check}".encode())
         response = socket.recv(1024).decode()
