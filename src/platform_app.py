@@ -1,5 +1,6 @@
 from config import socket_setup
 import platform1.gateway as gateway
+import platform1.auther as auther
 import threading
 import socket
 import json
@@ -66,7 +67,7 @@ def handle_client(conn):
             elif data == "authenticate":
                 print("Received authentication request")
                 conn.sendall(b"ok")
-                if not gateway.server_authenticate(conn):
+                if not auther.server_authenticate(conn):
                     print("Authentication failed")
                     conn.sendall(b"error")
                     break
