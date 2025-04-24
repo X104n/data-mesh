@@ -66,8 +66,9 @@ def handle_client(conn):
 
             elif data == "authenticate":
                 print("Received authentication request")
+                print(f"The data is: {data}")
                 conn.sendall(b"ok")
-                if not auther.server_authenticate(conn):
+                if not auther.server_authenticate(data, conn):
                     print("Authentication failed")
                     conn.sendall(b"error")
                     break
