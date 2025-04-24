@@ -2,27 +2,38 @@ import json
 
 def client_authenticate(action, addr_to_check, socket):
     """Authenticate the user based on the action and address"""
+    try:
+        # Get the platform ip from the JSON file
+        with open("src/platform1/marketplace.json", "r") as f:
+            marketplace = json.load(f)
+        platform_ip = marketplace["platform"]["domain"]
 
-    # Get the platform ip from the JSON file
-    with open("src/platform1/marketplace.json", "r") as f:
-        marketplace = json.load(f)
-    platform_ip = marketplace["platform"]["domain"]
-
-    socket.connect((platform_ip, 9000))
-    socket.sendall("authenticate".encode())
-    connection = socket.recv(1024).decode()
-    if connection == "ok":
-        # Send the action and address to check
-        socket.sendall(f"{action}/{addr_to_check}".encode())
-        response = socket.recv(1024).decode()
-        if response == "ok":
-            print(f"User authenticated for action: {action}")
-            return True
+        print(f"Authenticating {addr_to_check} for action {action} with platform {platform_ip}")
+        
+        socket.connect((platform_ip, 9000))
+        socket.sendall("authenticate".encode())
+        connection = socket.recv(1024).decode()
+        
+        if connection == "ok":
+            # Send the action and address to check
+            auth_msg = f"{action}/{addr_to_check}"
+            print(f"Sending authentication message: {auth_msg}")
+            socket.sendall(auth_msg.encode())
+            
+            response = socket.recv(1024).decode()
+            print(f"Authentication response: '{response}'")
+            
+            if response == "ok":
+                print(f"User authenticated for action: {action}")
+                return True
+            else:
+                print(f"Authentication failed for action: {action} - response: {response}")
+                return False
         else:
-            print(f"Authentication failed for action: {action}")
+            print(f"Error in authentication process - response: {connection}")
             return False
-    else:
-        print("Error in authentication process")
+    except Exception as e:
+        print(f"Exception during authentication: {e}")
         return False
 
 def server_authenticate(action, socket):
@@ -35,6 +46,7 @@ def server_authenticate(action, socket):
         # Split the data into action and address
         action, addr_to_check = data.split("/")
         print(f"Received authentication request for action: {action}")
+        print(f"Address to check: {addr_to_check}")
 
         # Get the platform ip from the JSON file
         with open("src/platform1/marketplace.json", "r") as f:

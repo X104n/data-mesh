@@ -68,11 +68,11 @@ def handle_client(domain_server):
             auth_client_socket = socket_setup(server=False)
             gateway.server_consume(domain_server, prodoucts, auth_client_socket)
         break
-    
+
     print(f"Connection with {domain_server.getpeername()[0]} closed")
     domain_server.close()
-    
-    
+
+
 
 def start_listening(server):
     """Start listening, and create new thread for each connection"""
