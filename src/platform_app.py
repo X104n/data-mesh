@@ -70,7 +70,6 @@ def handle_client(conn):
                 conn.sendall(b"ok")
                 if not auther.server_authenticate(data, conn):
                     print("Authentication failed")
-                    conn.sendall(b"error")
                     break
                 conn.sendall(b"ok")
 
