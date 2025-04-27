@@ -96,10 +96,12 @@ def client_consume(product_name, product_domain, client_socket):
 
 def server_consume(server_socket, products, client_socket):
     # Authenticate the user
+    '''
     addr = server_socket.getpeername()[0]
     if not client_authenticate("consume", addr, client_socket):
         server_socket.sendall(b"error")
         return
+    '''
 
     # Get the product name from the client
     data = server_socket.recv(1024).decode()
