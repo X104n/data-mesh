@@ -128,7 +128,7 @@ if __name__ == "__main__":
     ==========================
     '''
 
-    data_product = _create_product(1)
+    data_product = _create_product(1, domain_ip)
     prodoucts.append(data_product)
 
     artifact = _create_artifact(1, data_product=data_product, data={"key1": "value1"})
