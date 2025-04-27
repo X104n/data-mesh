@@ -162,7 +162,7 @@ if __name__ == "__main__":
         # Remove own product(s)
         choose_products = []
         for product in mesh_products:
-            if product[1] == domain_ip:
+            if product[1] != domain_ip:
                 choose_products.append(product)
 
         print(f"Products not including this domains product: {choose_products}")
