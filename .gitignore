@@ -3,3 +3,4 @@
 
 # Ignore jetbrains
 ./idea
+./src/domain_app.csv
