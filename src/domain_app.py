@@ -89,6 +89,23 @@ def start_listening(server):
             print("Server shutting down...")
             break
 
+def time_keeping(start_time, product_found):
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print("=====================\n")
+    print(f"Elapsed time: {elapsed_time} seconds")
+    if not product_found:
+        print("No product found")
+    print("\n=====================")
+
+    # Write the elapsed_time to a CSV file
+    with open("src/domain_app.csv", "a", newline='') as f:
+        writer = csv.writer(f)
+        if not product_found:
+            writer.writerow(["No product found"])
+        writer.writerow([elapsed_time])  # Pass values as a list
+        times.append(elapsed_time)
+
 if __name__ == "__main__":
 
     times = []
@@ -161,6 +178,11 @@ if __name__ == "__main__":
         # Visit the marketplace to get all the mesh products
         discover_client = socket_setup(server=False)
         mesh_products_json = gateway.client_discover_products(discover_client)
+        if mesh_products_json is None:
+            print("No mesh products found")
+            time_keeping(start_time, False)
+            time.sleep(5)
+            continue
         mesh_products = json.loads(mesh_products_json)
         print(f"Mesh products: {mesh_products}")
 
@@ -182,17 +204,7 @@ if __name__ == "__main__":
         product = gateway.client_consume(product_name, domain, consume_client)
         print(f"Product: {product}")
 
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print("=====================\n")
-        print(f"Elapsed time: {elapsed_time} seconds")
-        print("\n=====================")
-
-        # Write the elapsed_time to a CSV file
-        with open("src/domain_app.csv", "a", newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([elapsed_time])  # Pass values as a list
-            times.append(elapsed_time)
+        time_keeping(start_time, True)
 
         time.sleep(5)
         
