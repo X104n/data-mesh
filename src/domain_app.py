@@ -206,7 +206,7 @@ if __name__ == "__main__":
 
         time_keeping(start_time, True)
 
-        time.sleep(5)
+        time.sleep(1)
         
     '''
     Make sure the server do not exit
