@@ -150,6 +150,7 @@ if __name__ == "__main__":
     input("Press Enter to start consuming products from the mesh...")
 
     while True:
+        start_time = time.time()
 
         print("Consume product start")
 
@@ -176,6 +177,12 @@ if __name__ == "__main__":
         domain = chosen_product[1]
         product = gateway.client_consume(product_name, domain, consume_client)
         print(f"Product: {product}")
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print("=====================\n")
+        print(f"Elapsed time: {elapsed_time} seconds")
+        print("\n=====================")
 
         time.sleep(5)
         
