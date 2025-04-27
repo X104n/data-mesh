@@ -91,9 +91,13 @@ def start_listening(server):
 
 if __name__ == "__main__":
     '''
-    Getting the platform IP
+    Set the platform IP address
     ===========================
     '''
+
+    with open("src/platform1/marketplace.json", "w") as f:
+        platform_up = '{"platform": {"domain": "10.0.3.5"} }'
+        json.dump(json.loads(platform_up), f, indent=4)
 
     platform_ip = "10.0.3.5"
 
