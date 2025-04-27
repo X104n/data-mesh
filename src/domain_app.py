@@ -7,6 +7,7 @@ import socket
 import platform1.gateway as gateway
 import json
 from TUI.main import choose_from_list
+import csv
 
 prodoucts = []
 
@@ -89,6 +90,9 @@ def start_listening(server):
             break
 
 if __name__ == "__main__":
+
+    times = []
+
     '''
     Set the platform IP address
     ===========================
@@ -183,6 +187,12 @@ if __name__ == "__main__":
         print("=====================\n")
         print(f"Elapsed time: {elapsed_time} seconds")
         print("\n=====================")
+
+        # Write the elapsed_time to a CSV file
+        with open("src/domain_app.csv", "a", newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([elapsed_time])  # Pass values as a list
+            times.append(elapsed_time)
 
         time.sleep(5)
         
