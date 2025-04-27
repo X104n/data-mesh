@@ -147,39 +147,40 @@ if __name__ == "__main__":
     ==========================
     '''
 
+    input("Press Enter to start consuming products from the mesh...")
+
     while True:
+
+        print("Consume product start")
+
         # Visit the marketplace to get all the mesh products
         discover_client = socket_setup(server=False)
         mesh_products_json = gateway.client_discover_products(discover_client)
         mesh_products = json.loads(mesh_products_json)
         print(f"Mesh products: {mesh_products}")
 
-        remove_own_product = False
+        # Remove own product(s)
+        choose_products = []
         for product in mesh_products:
-            pass
-        pass
+            if product[1] == domain_ip:
+                choose_products.append(product)
 
+        print(f"Products not including this domains product: {choose_products}")
+        
+        chosen_product = choose_products[0]
+        print(f"Chosen product: {chosen_product}")
 
+        # Get the product from the domain
+        consume_client = socket_setup(server=False)
+        product_name = chosen_product[0]
+        domain = chosen_product[1]
+        product = gateway.client_consume(product_name, domain, consume_client)
+        print(f"Product: {product}")
 
-    
-    # Choose a product from the mesh
-    asking_product_nr = choose_from_list("Choose one of the mesh products",mesh_products)
-    asking_product = mesh_products[asking_product_nr]
-    print(f"Chosen product: {asking_product}")
-
-
-    
-    # Get the product from the domain
-    consume_client = socket_setup(server=False)
-    product_name = asking_product[0]
-    domain = asking_product[1]
-    product = gateway.client_consume(product_name, domain, consume_client)
-    print(f"Product: {product}")
-
-    with open("src/domain/test.txt", "w") as f:
-        f.write(product)
-
+        time.sleep(5)
+        
     '''
+    Make sure the server do not exit
     ==========================
     '''
 
