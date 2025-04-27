@@ -50,7 +50,6 @@ def handle_client(conn):
                 print("Sending mesh data")
                 with open("src/platform1/marketplace.json", "r") as f:
                     marketplace = json.load(f)
-                "Send only keys of the json file"
                 mesh_data = json.dumps(list(marketplace.keys())).encode()
                 conn.sendall(mesh_data)
 

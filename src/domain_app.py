@@ -10,14 +10,13 @@ from TUI.main import choose_from_list
 
 prodoucts = []
 
-def _create_product(number: int):
+def _create_product(number: int, domain):
     data_product = DataProduct(
         data_id=number,
         name=f"Data Product {number}",
-        domain=f"Domain {number}",
+        domain=domain,
         artifacts=[],
     )
-
     return data_product
 
 def _create_artifact(number: int, data_product=None, data={"key": "value"}):
@@ -101,26 +100,28 @@ if __name__ == "__main__":
 
     platform_ip = "10.0.3.5"
 
-    # Start the domain server
-    domain_server = socket_setup()
-    threading.Thread(target=start_listening, args=(domain_server,), daemon=True).start()
-
     '''
+    Starting the domain server socket
     ==========================
     '''
 
-    # Announce presence to the mesh
+    domain_server = socket_setup()
+    threading.Thread(target=start_listening, args=(domain_server,), daemon=True).start()
+
+    domain_ip = domain_server.getsockname()[0]
+    print(f"Domain server started at {domain_ip}")
+    
+    '''
+    Announce presence to the platform
+    ==========================
+    '''
+
     domain_client = socket_setup(server=False)
     mesh_hello(domain_client)
 
-    time.sleep(1)
-
-    # Get available domains from platform
-    domain_client = socket_setup(server=False)
-    domains = get_mesh(domain_client)
-    print(f"Domains: {domains}")
-    
-    time.sleep(1)
+    #domain_client = socket_setup(server=False)
+    #domains = get_mesh(domain_client)
+    #print(f"Domains: {domains}")
 
     '''
     Create a data product and artifacts
@@ -129,9 +130,8 @@ if __name__ == "__main__":
 
     data_product = _create_product(1)
     prodoucts.append(data_product)
+
     artifact = _create_artifact(1, data_product=data_product, data={"key1": "value1"})
-    data_product.artifacts.append(artifact)
-    artifact = _create_artifact(5, data_product=data_product, data={"key5": "value5"})
     data_product.artifacts.append(artifact)
     
     '''
@@ -142,16 +142,24 @@ if __name__ == "__main__":
     register_client = socket_setup(server=False)
     gateway.client_discover_registration(data_product, register_client)
 
-
     '''
+    Choose products from the mesh on repeat
     ==========================
     '''
 
-    # Visit the marketplace to get all the mesh products
-    discover_client = socket_setup(server=False)
-    mesh_products_json = gateway.client_discover_products(discover_client)
-    mesh_products = json.loads(mesh_products_json)
-    print(f"Mesh products: {mesh_products}")
+    while True:
+        # Visit the marketplace to get all the mesh products
+        discover_client = socket_setup(server=False)
+        mesh_products_json = gateway.client_discover_products(discover_client)
+        mesh_products = json.loads(mesh_products_json)
+        print(f"Mesh products: {mesh_products}")
+
+        remove_own_product = False
+        for product in mesh_products:
+            pass
+        pass
+
+
 
     
     # Choose a product from the mesh
