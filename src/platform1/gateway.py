@@ -1,5 +1,10 @@
-from .auther import client_authenticate
 import json
+from .auther import client_authenticate
+
+'''
+Functions used by the domains
+=========================
+'''
 
 def client_discover_products(socket):
     """Used by a client socket to discover products from the marketplace"""
@@ -19,6 +24,70 @@ def client_discover_products(socket):
     else:
         print("Error in discovering products")
         return None
+    
+def client_discover_registration(data_product, socket):
+
+    # Get platform ip from the JSON file
+    with open("src/platform1/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+    platform_ip = marketplace["platform"]["domain"]
+
+    # Connect to the platform and register the data product in the marketplace
+    socket.connect((platform_ip, 9000))
+    socket.sendall(b"discover/registration")
+    connection = socket.recv(1024).decode()
+    if connection == "ok":
+        socket.sendall(data_product.name.encode())
+        response = socket.recv(1024).decode()
+        if response == "ok":
+            print(f"Data product {data_product.name} registered successfully")
+
+def client_consume(product_name, product_domain, client_socket):
+    try:
+        client_socket.connect((product_domain, 9000))
+        client_socket.sendall(b"consume")
+        connection = client_socket.recv(1024).decode()
+        if connection == "ok":
+            client_socket.sendall(product_name.encode())
+            data = client_socket.recv(1024).decode()
+            return data
+        else:
+            print("Error in consuming data")
+            return None
+    except ConnectionResetError:
+        print("Connection reset by peer")
+        return None
+    except Exception as e:
+        print(f"Error in client consume: {e}")
+        return None
+    
+def server_consume(server_socket, products, client_socket):
+    # Authenticate the user
+    '''
+    addr = server_socket.getpeername()[0]
+    if not client_authenticate("consume", addr, client_socket):
+        server_socket.sendall(b"error")
+        return
+    '''
+
+    # Get the product name from the client
+    data = server_socket.recv(1024).decode()
+    
+    # Find the correlating data product from the product list
+    for product in products:
+        if product.name == data:
+            # Convert dictionary to JSON string first, then encode to bytes
+            product_dict = product.to_dict()
+            json_str = json.dumps(product_dict)
+            server_socket.sendall(json_str.encode())
+            break
+    else:
+        server_socket.sendall(b"error")
+
+'''
+Functions used by the platform
+=========================
+'''
 
 def platform_discover_products(domain_server):
 
@@ -36,23 +105,6 @@ def platform_discover_products(domain_server):
     # Convert to JSON and send
     json_data = json.dumps(product_domain_pairs).encode()
     domain_server.sendall(json_data)
-
-def client_discover_registration(data_product, socket):
-    
-    # Get platform ip from the JSON file
-    with open("src/platform1/marketplace.json", "r") as f:
-        marketplace = json.load(f)
-    platform_ip = marketplace["platform"]["domain"]
-
-    # Connect to the platform and register the data product in the marketplace
-    socket.connect((platform_ip, 9000))
-    socket.sendall(b"discover/registration")
-    connection = socket.recv(1024).decode()
-    if connection == "ok":
-        socket.sendall(data_product.name.encode())
-        response = socket.recv(1024).decode()
-        if response == "ok":
-            print(f"Data product {data_product.name} registered successfully")
             
 def platform_discover_registration(domain_server):
 
@@ -73,44 +125,3 @@ def platform_discover_registration(domain_server):
         domain_server.sendall(b"ok")
     else:
         domain_server.sendall(b"error")
-
-
-def client_consume(product_name, product_domain, client_socket):
-    try:
-        client_socket.connect((product_domain, 9000))
-        client_socket.sendall(b"consume")
-        connection = client_socket.recv(1024).decode()
-        if connection == "ok":
-            client_socket.sendall(product_name.encode())
-            data = client_socket.recv(1024).decode()
-            return data
-        else:
-            print("Error in consuming data")
-            return None
-    except ConnectionResetError:
-        print("Connection reset by peer")
-        return None
-    except Exception as e:
-        print(f"Error in client consume: {e}")
-        return None
-
-def server_consume(server_socket, products, client_socket):
-    # Authenticate the user
-    addr = server_socket.getpeername()[0]
-    if not client_authenticate("consume", addr, client_socket):
-        server_socket.sendall(b"error")
-        return
-
-    # Get the product name from the client
-    data = server_socket.recv(1024).decode()
-    
-    # Find the correlating data product from the product list
-    for product in products:
-        if product.name == data:
-            # Convert dictionary to JSON string first, then encode to bytes
-            product_dict = product.to_dict()
-            json_str = json.dumps(product_dict)
-            server_socket.sendall(json_str.encode())
-            break
-    else:
-        server_socket.sendall(b"error")

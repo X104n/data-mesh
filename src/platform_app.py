@@ -2,7 +2,7 @@ import threading
 import socket
 import json
 
-# Loval imports
+# Local imports
 from config import socket_setup
 from platform1 import auther, gateway
 
