@@ -1,4 +1,3 @@
-"""Configuration file"""
 import socket
 
 IP_ADDRESSES = [
@@ -7,14 +6,6 @@ IP_ADDRESSES = [
     "10.0.3.6",
     "10.0.3.7",
     "localhost"
-]
-
-GATEWAYS = [
-    "discover", # Use this to discover data products in the data mesh domain 
-    "control", # Use this to control the data product such as start, stop, restart
-    "observe", # Use this to observe like the healt and status of the data product (may not need this)
-    "consume", # Use this to consume the data product (read only)
-    "ingest" # Use this to ingest data into the data product (write only)
 ]
 
 def choose_from_list(prompt, options):

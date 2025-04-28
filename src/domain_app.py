@@ -1,12 +1,13 @@
-from config import socket_setup
-from domain.data_product import DataProduct
-from domain.artifact import Artifact
-import time
-import threading 
-import socket
-import platform1.gateway as gateway
 import json
+import time
 import csv
+import socket
+import threading
+
+# Local imports
+from config import socket_setup
+from domain import DataProduct, Artifact
+from platform1 import gateway
 
 prodoucts = []
 
@@ -103,12 +104,8 @@ def time_keeping(start_time, product_found):
         if not product_found:
             writer.writerow(["No product found"])
         writer.writerow([elapsed_time])  # Pass values as a list
-        times.append(elapsed_time)
 
 if __name__ == "__main__":
-
-    times = []
-
     '''
     Set the platform IP address
     ===========================
@@ -118,7 +115,9 @@ if __name__ == "__main__":
         platform_up = '{"platform": {"domain": "10.0.3.5"} }'
         json.dump(json.loads(platform_up), f, indent=4)
 
-    platform_ip = "10.0.3.5"
+    with open("src/platform1/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+    platform_ip = marketplace["platform"]["domain"]
 
     '''
     Starting the domain server socket

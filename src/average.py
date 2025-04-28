@@ -6,7 +6,7 @@ def calculate_average_basic():
     with open("src/domain_app.csv", "r") as f:
         for line in f:
             line = line.strip()
-            if line and not line.startswith("//"):  # Skip comments and empty lines
+            if line and not line.startswith("//"):
                 if line == "No product found":
                     count_failure += 1
                 else:
@@ -14,7 +14,6 @@ def calculate_average_basic():
                         total += float(line)
                         count_success += 1
                     except ValueError:
-                        # Skip non-numeric lines that aren't "No product found"
                         continue
     
     total_attempts = count_success + count_failure
