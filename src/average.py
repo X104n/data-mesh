@@ -30,5 +30,68 @@ def calculate_average_basic():
     else:
         print("No successful retrievals found")
 
+def count_domain_messages():
+    """
+    Analyze the logger file to count specific messages from each domain.
+    Prints a summary of message counts grouped by domain.
+    """
+    # Dictionary to store domain -> message -> count
+    domain_messages = {}
+    
+    try:
+        with open("src/platform1/log.txt", "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                # Parse the log line format - assuming format like: "[timestamp] domain: message"
+                parts = line.split("] ")
+                if len(parts) < 2:
+                    continue
+                    
+                # Extract domain and message
+                domain_message = parts[1]
+                domain_parts = domain_message.split(": ", 1)
+                if len(domain_parts) < 2:
+                    continue
+                    
+                domain = domain_parts[0]
+                message = domain_parts[1]
+                
+                # Initialize domain dict if not exists
+                if domain not in domain_messages:
+                    domain_messages[domain] = {}
+                
+                # Count this message
+                if message not in domain_messages[domain]:
+                    domain_messages[domain][message] = 1
+                else:
+                    domain_messages[domain][message] += 1
+        
+        # Print results
+        print("\n=== Domain Message Analysis ===")
+        for domain, messages in domain_messages.items():
+            print(f"\nDomain: {domain}")
+            for message, count in sorted(messages.items(), key=lambda x: x[1], reverse=True):
+                print(f"  {message}: {count} times")
+        
+        # Print totals per domain
+        print("\n=== Total Messages by Domain ===")
+        for domain, messages in sorted(domain_messages.items(), 
+                                       key=lambda x: sum(x[1].values()), 
+                                       reverse=True):
+            total = sum(messages.values())
+            print(f"{domain}: {total} total messages")
+            
+    except FileNotFoundError:
+        print("Logger file not found. Make sure the path is correct.")
+    except Exception as e:
+        print(f"Error analyzing log file: {e}")
+
 if __name__ == "__main__":
-    calculate_average_basic()
+    domain_server_bool = input("Domain or Plarform? (d/p): ").strip().lower()
+    if domain_server_bool == "d":
+        calculate_average_basic()
+    elif domain_server_bool == "p":
+        count_domain_messages()
