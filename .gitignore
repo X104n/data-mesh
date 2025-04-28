@@ -3,4 +3,5 @@
 
 # Ignore jetbrains
 ./idea
-./src/domain_app.csv
+/src/domain_app.csv
+/src/platform1/log.csv
