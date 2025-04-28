@@ -1,9 +1,10 @@
-from config import socket_setup
-import platform1.gateway as gateway
-import platform1.auther as auther
 import threading
 import socket
 import json
+
+# Loval imports
+from config import socket_setup
+from platform1 import auther, gateway
 
 def start_listening(server):
     """Start listening, and create new thread for each connection"""
@@ -27,7 +28,8 @@ def handle_client(conn):
             data = conn.recv(1024).decode()
             if not data:
                 break
-
+        
+        # Hello request
             elif data == "hello":
                 addr = conn.getpeername()[0]
                 print(f"Received hello from {addr}")
@@ -45,7 +47,8 @@ def handle_client(conn):
                         json.dump(marketplace, f, indent=4)
 
                 conn.sendall(b"ok")
-
+        
+        # Get mesh request
             elif data == "get_mesh":
                 print("Sending mesh data")
                 with open("src/platform1/marketplace.json", "r") as f:
@@ -53,16 +56,19 @@ def handle_client(conn):
                 mesh_data = json.dumps(list(marketplace.keys())).encode()
                 conn.sendall(mesh_data)
 
+        # Registration request
             elif data == "discover/registration":
                 print("Received discover/registration")
                 conn.sendall(b"ok")
                 gateway.platform_discover_registration(conn)
 
+        # Discover request
             elif data == "discover":
                 print("Received discover")
                 conn.sendall(b"ok")
                 gateway.platform_discover_products(conn)
 
+        # Authenticate request
             elif data == "authenticate":
                 print("Received authentication request")
                 print(f"The data is: {data}")
@@ -79,17 +85,16 @@ def handle_client(conn):
         conn.close()
 
 if __name__ == "__main__":
-    # Clear json file
+    # Clear json file from previous session
     with open("src/platform1/marketplace.json", "w") as f:
         json.dump({}, f, indent=4)
 
     server = socket_setup()
 
     '''
-    Getting the server ip address
+    Wrinting the platforms ip to the marketplace
     ====================
     '''
-
     host = server.getsockname()[0]
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
@@ -101,7 +106,9 @@ if __name__ == "__main__":
         with open("src/platform1/marketplace.json", "w") as f:
             json.dump(marketplace, f, indent=4)
     print(f"Host and port {host}:{server.getsockname()[1]}")
+    
     '''
+    Starting the platform server socket
     ====================
     '''
     start_listening(server)

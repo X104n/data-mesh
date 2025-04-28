@@ -9,6 +9,7 @@ from config import socket_setup
 from domain import DataProduct, Artifact
 from platform1 import gateway
 
+# Global variable
 prodoucts = []
 
 def _create_product(number: int, domain):
@@ -47,15 +48,6 @@ def get_mesh(domain_client):
     else:
         print("No data received from the mesh")
 
-def get_product(product):
-    # Get the product domain
-    product_domain = None
-
-    # Contact the domain server to get the product
-    full_product = None
-
-    return full_product
-
 def handle_client(domain_server):
     """Handle client connection"""
     while True:
@@ -71,8 +63,6 @@ def handle_client(domain_server):
 
     print(f"Connection with {domain_server.getpeername()[0]} closed")
     domain_server.close()
-
-
 
 def start_listening(server):
     """Start listening, and create new thread for each connection"""
@@ -103,14 +93,13 @@ def time_keeping(start_time, product_found):
         writer = csv.writer(f)
         if not product_found:
             writer.writerow(["No product found"])
-        writer.writerow([elapsed_time])  # Pass values as a list
+        writer.writerow([elapsed_time])
 
 if __name__ == "__main__":
     '''
     Set the platform IP address
     ===========================
     '''
-
     with open("src/platform1/marketplace.json", "w") as f:
         platform_up = '{"platform": {"domain": "10.0.3.5"} }'
         json.dump(json.loads(platform_up), f, indent=4)
