@@ -3,6 +3,7 @@ import json
 # Local imports
 from .auther import client_authenticate
 from .logger import log
+from config import IP_ADDRESSES
 
 def log_helper(message, socket):
     addr = socket.getpeername()[0]
@@ -77,7 +78,17 @@ def server_consume(server_socket, products, client_socket, zero_trust):
             server_socket.sendall(b"error")
             return
     else:
-        print("TODO - mock authentication")
+        # Get domain list
+        marketplace = IP_ADDRESSES
+
+        # Check if the address is in the marketplace JSON file
+        addr = server_socket.getpeername()[0]
+        if addr in marketplace:
+            print(f"Address {addr} is eligible for consumption")
+            return True
+        else:
+            server_socket.sendall(b"error")
+            return False
     
 
     # Get the product name from the client
