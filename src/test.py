@@ -1,4 +1,21 @@
-import json
-with open("src/platform1/marketplace.json", "w") as f:
-    platform_up = '{"platform": {"domain": "10.0.3.5"} }'
-    json.dump(json.loads(platform_up), f, indent=4)
+from platform1 import logger
+
+logger.reset_log_file()
+
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
+logger.log("test", "ip")
