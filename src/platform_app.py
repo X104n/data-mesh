@@ -4,7 +4,7 @@ import json
 
 # Local imports
 from config import socket_setup
-from platform1 import auther, gateway
+from platform1 import auther, gateway, logger
 
 def start_listening(server):
     """Start listening, and create new thread for each connection"""
@@ -88,6 +88,9 @@ if __name__ == "__main__":
     # Clear json file from previous session
     with open("src/platform1/marketplace.json", "w") as f:
         json.dump({}, f, indent=4)
+
+    # Clear log file
+    logger.reset_log_file()
 
     server = socket_setup()
 

@@ -14,7 +14,6 @@ Functions used by the domains
 '''
 
 def client_discover_products(socket):
-    log_helper("Discovering products", socket)
     """Used by a client socket to discover products from the marketplace"""
 
     # Get platform ip from the JSON file
@@ -34,7 +33,6 @@ def client_discover_products(socket):
         return None
     
 def client_discover_registration(data_product, socket):
-    log_helper("Discovering registration", socket)
 
     # Get platform ip from the JSON file
     with open("src/platform1/marketplace.json", "r") as f:
@@ -52,7 +50,6 @@ def client_discover_registration(data_product, socket):
             print(f"Data product {data_product.name} registered successfully")
 
 def client_consume(product_name, product_domain, client_socket):
-    log_helper("Consuming data", client_socket)
     try:
         client_socket.connect((product_domain, 9000))
         client_socket.sendall(b"consume")
@@ -72,14 +69,13 @@ def client_consume(product_name, product_domain, client_socket):
         return None
     
 def server_consume(server_socket, products, client_socket):
-    log_helper("Server consume", server_socket)
     # Authenticate the user
-    '''
+
     addr = server_socket.getpeername()[0]
     if not client_authenticate("consume", addr, client_socket):
         server_socket.sendall(b"error")
         return
-    '''
+    
 
     # Get the product name from the client
     data = server_socket.recv(1024).decode()
