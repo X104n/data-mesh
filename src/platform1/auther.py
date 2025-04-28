@@ -1,4 +1,5 @@
 import json
+from config import IP_ADDRESSES
 
 def client_authenticate(action, addr_to_check, socket):
     """Authenticate the user based on the action and address"""
@@ -48,9 +49,8 @@ def server_authenticate(action, socket):
         print(f"Received authentication request for action: {action}")
         print(f"Address to check: {addr_to_check}")
 
-        # Get the platform ip from the JSON file
-        with open("src/platform1/marketplace.json", "r") as f:
-            marketplace = json.load(f)
+        # Get domain list
+        marketplace = IP_ADDRESSES
 
         # Check if the address is in the marketplace JSON file
         if addr_to_check in marketplace:
