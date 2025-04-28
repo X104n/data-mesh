@@ -1,5 +1,4 @@
 """Configuration file"""
-from TUI import choose_from_list
 import socket
 
 IP_ADDRESSES = [
@@ -17,6 +16,21 @@ GATEWAYS = [
     "consume", # Use this to consume the data product (read only)
     "ingest" # Use this to ingest data into the data product (write only)
 ]
+
+def choose_from_list(prompt, options):
+    print(prompt)
+    for idx, option in enumerate(options, start=1):
+        print(f"{idx}: {option}")
+
+    while True:
+        try:
+            choice = int(input("Enter the number of your choice: "))
+            if 1 <= choice <= len(options):
+                return choice - 1  # convert to zero-based index
+            else:
+                print(f"Invalid choice. Please enter a number between 1 and {len(options)}.")
+        except ValueError:
+            print("Please enter a valid number.")
 
 def ip_setup():
     chosen_ip = choose_from_list("Choose an IP address:", IP_ADDRESSES)

@@ -6,7 +6,6 @@ import threading
 import socket
 import platform1.gateway as gateway
 import json
-from TUI.main import choose_from_list
 import csv
 
 prodoucts = []
