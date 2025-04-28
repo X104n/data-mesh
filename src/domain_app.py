@@ -11,6 +11,7 @@ from platform1 import gateway
 
 # Global variable
 prodoucts = []
+zero_trust = False
 
 def _create_product(number: int, domain):
     data_product = DataProduct(
@@ -58,7 +59,7 @@ def handle_client(domain_server):
             print("Received consume request")
             domain_server.sendall(b"ok")
             auth_client_socket = socket_setup(server=False)
-            gateway.server_consume(domain_server, prodoucts, auth_client_socket)
+            gateway.server_consume(domain_server, prodoucts, auth_client_socket, zero_trust)
         break
 
     print(f"Connection with {domain_server.getpeername()[0]} closed")
@@ -100,6 +101,12 @@ if __name__ == "__main__":
     Set the platform IP address
     ===========================
     '''
+    zT_bool = input("Should the program use zero trust? (y/n): ").strip().lower()
+    if zT_bool == "y":
+        zero_trust = True
+    else:
+        zero_trust = False
+
     with open("src/platform1/marketplace.json", "w") as f:
         platform_up = '{"platform": {"domain": "10.0.3.5"} }'
         json.dump(json.loads(platform_up), f, indent=4)
