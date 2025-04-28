@@ -1,6 +1,11 @@
 import json
 from .auther import client_authenticate
 
+'''
+Functions used by the domains
+=========================
+'''
+
 def client_discover_products(socket):
     """Used by a client socket to discover products from the marketplace"""
 
@@ -19,26 +24,9 @@ def client_discover_products(socket):
     else:
         print("Error in discovering products")
         return None
-
-def platform_discover_products(domain_server):
-
-    # Get the mesh products from the marketplace JSON file
-    with open("src/platform1/marketplace.json", "r") as f:
-        marketplace = json.load(f)
     
-    # Create a list with (product, domain) pairs
-    product_domain_pairs = []
-    for domain in marketplace:
-        if domain != "platform":
-            for product in marketplace[domain]["products"]:
-                product_domain_pairs.append([product, domain])
-    
-    # Convert to JSON and send
-    json_data = json.dumps(product_domain_pairs).encode()
-    domain_server.sendall(json_data)
-
 def client_discover_registration(data_product, socket):
-    
+
     # Get platform ip from the JSON file
     with open("src/platform1/marketplace.json", "r") as f:
         marketplace = json.load(f)
@@ -53,27 +41,6 @@ def client_discover_registration(data_product, socket):
         response = socket.recv(1024).decode()
         if response == "ok":
             print(f"Data product {data_product.name} registered successfully")
-            
-def platform_discover_registration(domain_server):
-
-    # Get the address / ip of the domain server.
-    addr = domain_server.getpeername()[0]
-
-    # Get the data product name from the client
-    data_product_name = domain_server.recv(1024).decode()
-
-    # Adding the product to the marketplace and the domain if it doesn't exist
-    with open("src/platform1/marketplace.json", "r") as f:
-        marketplace = json.load(f)
-    if addr in marketplace:
-        if data_product_name not in marketplace[addr]["products"]:
-            marketplace[addr]["products"].append(data_product_name)
-        with open("src/platform1/marketplace.json", "w") as f:
-            json.dump(marketplace, f, indent=4)
-        domain_server.sendall(b"ok")
-    else:
-        domain_server.sendall(b"error")
-
 
 def client_consume(product_name, product_domain, client_socket):
     try:
@@ -93,7 +60,7 @@ def client_consume(product_name, product_domain, client_socket):
     except Exception as e:
         print(f"Error in client consume: {e}")
         return None
-
+    
 def server_consume(server_socket, products, client_socket):
     # Authenticate the user
     '''
@@ -116,3 +83,45 @@ def server_consume(server_socket, products, client_socket):
             break
     else:
         server_socket.sendall(b"error")
+
+'''
+Functions used by the platform
+=========================
+'''
+
+def platform_discover_products(domain_server):
+
+    # Get the mesh products from the marketplace JSON file
+    with open("src/platform1/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+    
+    # Create a list with (product, domain) pairs
+    product_domain_pairs = []
+    for domain in marketplace:
+        if domain != "platform":
+            for product in marketplace[domain]["products"]:
+                product_domain_pairs.append([product, domain])
+    
+    # Convert to JSON and send
+    json_data = json.dumps(product_domain_pairs).encode()
+    domain_server.sendall(json_data)
+            
+def platform_discover_registration(domain_server):
+
+    # Get the address / ip of the domain server.
+    addr = domain_server.getpeername()[0]
+
+    # Get the data product name from the client
+    data_product_name = domain_server.recv(1024).decode()
+
+    # Adding the product to the marketplace and the domain if it doesn't exist
+    with open("src/platform1/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+    if addr in marketplace:
+        if data_product_name not in marketplace[addr]["products"]:
+            marketplace[addr]["products"].append(data_product_name)
+        with open("src/platform1/marketplace.json", "w") as f:
+            json.dump(marketplace, f, indent=4)
+        domain_server.sendall(b"ok")
+    else:
+        domain_server.sendall(b"error")
