@@ -98,14 +98,23 @@ def time_keeping(start_time, product_found):
 
 if __name__ == "__main__":
     '''
-    Set the platform IP address
-    ===========================
+    Setup
+    ==========================
     '''
+    
     zT_bool = input("Should the program use zero trust? (y/n): ").strip().lower()
     if zT_bool == "y":
         zero_trust = True
     else:
         zero_trust = False
+
+    with open("src/domain_app.csv", "w") as f:
+        writer = csv.writer(f)
+    '''
+    Set the platform IP address
+    ===========================
+    '''
+
 
     with open("src/platform1/marketplace.json", "w") as f:
         platform_up = '{"platform": {"domain": "10.0.3.5"} }'

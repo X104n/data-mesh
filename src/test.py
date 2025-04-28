@@ -1,21 +1,3 @@
-from platform1 import logger
-
-logger.reset_log_file()
-
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
-logger.log("test", "ip")
+import csv
+with open("src/domain_app.csv", "w") as f:
+        writer = csv.writer(f)
