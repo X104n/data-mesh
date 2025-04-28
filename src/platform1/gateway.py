@@ -1,5 +1,12 @@
 import json
+
+# Local imports
 from .auther import client_authenticate
+from .logger import log
+
+def log_helper(message, socket):
+    addr = socket.getpeername()[0]
+    log(message, addr)
 
 '''
 Functions used by the domains
@@ -7,6 +14,7 @@ Functions used by the domains
 '''
 
 def client_discover_products(socket):
+    log_helper("Discovering products", socket)
     """Used by a client socket to discover products from the marketplace"""
 
     # Get platform ip from the JSON file
@@ -26,6 +34,7 @@ def client_discover_products(socket):
         return None
     
 def client_discover_registration(data_product, socket):
+    log_helper("Discovering registration", socket)
 
     # Get platform ip from the JSON file
     with open("src/platform1/marketplace.json", "r") as f:
@@ -43,6 +52,7 @@ def client_discover_registration(data_product, socket):
             print(f"Data product {data_product.name} registered successfully")
 
 def client_consume(product_name, product_domain, client_socket):
+    log_helper("Consuming data", client_socket)
     try:
         client_socket.connect((product_domain, 9000))
         client_socket.sendall(b"consume")
@@ -62,6 +72,7 @@ def client_consume(product_name, product_domain, client_socket):
         return None
     
 def server_consume(server_socket, products, client_socket):
+    log_helper("Server consume", server_socket)
     # Authenticate the user
     '''
     addr = server_socket.getpeername()[0]
@@ -90,6 +101,7 @@ Functions used by the platform
 '''
 
 def platform_discover_products(domain_server):
+    log_helper("Discovering products", domain_server)
 
     # Get the mesh products from the marketplace JSON file
     with open("src/platform1/marketplace.json", "r") as f:
@@ -107,6 +119,7 @@ def platform_discover_products(domain_server):
     domain_server.sendall(json_data)
             
 def platform_discover_registration(domain_server):
+    log_helper("Discovering registration", domain_server)
 
     # Get the address / ip of the domain server.
     addr = domain_server.getpeername()[0]
