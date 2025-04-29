@@ -17,7 +17,6 @@ Functions used by the domains
 def client_discover_products(socket):
     """Used by a client socket to discover products from the marketplace"""
     try:
-
         # Get platform ip from the JSON file
         with open("src/platform1/marketplace.json", "r") as f:
             marketplace = json.load(f)
@@ -26,12 +25,16 @@ def client_discover_products(socket):
         # Connect to the platform and get the mesh products
         socket.connect((platform_ip, 9000))
         socket.sendall(b"discover")
-        connection = socket.recv(1024).decode()
-        if connection == "ok":
+        response = socket.recv(1024).decode()
+        
+        if response == "ok":
             products = socket.recv(1024).decode()
             return products
+        elif response.startswith("ok"):
+            products = response[2:]  # Remove the "ok" part
+            return products
         else:
-            print("Error in discovering products", connection)
+            print("Error in discovering products:", response)
             return None
     except Exception as e:
         print(f"Error in client discover products: {e}")
