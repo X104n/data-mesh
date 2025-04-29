@@ -54,17 +54,15 @@ def server_authenticate(action, socket):
         # Get domain list
         marketplace = IP_ADDRESSES
 
-        print(f"Marketplace addresses: {marketplace}")
-        print(f"Checking if {addr_to_check} is in the marketplace")
-
-
         # Check if the address is in the marketplace JSON file
         if addr_to_check in marketplace:
             if action == "discover":
                 print(f"Address {addr_to_check} is eligible for discovery")
+                socket.sendall(b"ok")
                 return True
             elif action == "consume":
                 print(f"Address {addr_to_check} is eligible for consumption")
+                socket.sendall(b"ok")
                 return True
             socket.sendall(b"error")
             return False
