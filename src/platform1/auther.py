@@ -41,37 +41,29 @@ def client_authenticate(action, addr_to_check, socket):
 
 def server_authenticate(action, socket):
     """Authenticate the user based on the action and address"""
-    try:
-        data = socket.recv(1024).decode()
-        if not data:
-            return False
-
-        # Split the data into action and address
-        action, addr_to_check = data.split("/")
-        print(f"Received authentication request for action: {action}")
-        print(f"Address to check: {addr_to_check}")
-
-        # Get domain list
-        marketplace = IP_ADDRESSES
-
-        # Check if the address is in the marketplace JSON file
-        if addr_to_check in marketplace:
-            if action == "discover":
-                print(f"Address {addr_to_check} is eligible for discovery")
-                socket.sendall(b"ok")
-                return True
-            elif action == "consume":
-                print(f"Address {addr_to_check} is eligible for consumption")
-                socket.sendall(b"ok")
-                return True
-            socket.sendall(b"error")
-            return False
-        else:
-            print(f"Address {addr_to_check} is not in the marketplace")
-            socket.sendall(b"error")
-            return False
-    except Exception as e:
-        print(f"Error in authentication process: {e}")
+    data = socket.recv(1024).decode()
+    if not data:
         return False
-    finally:
-        socket.close()
+
+    # Split the data into action and address
+    action, addr_to_check = data.split("/")
+    print(f"Received authentication request for action: {action}")
+    print(f"Address to check: {addr_to_check}")
+
+    # Get domain list
+    marketplace = IP_ADDRESSES
+
+    # Check if the address is in the marketplace JSON file
+    if addr_to_check in marketplace:
+        if action == "discover":
+            print(f"Address {addr_to_check} is eligible for discovery")
+            return True
+        elif action == "consume":
+            print(f"Address {addr_to_check} is eligible for consumption")
+            return True
+        socket.sendall(b"error")
+        return False
+    else:
+        print(f"Address {addr_to_check} is not in the marketplace")
+        socket.sendall(b"error")
+        return False
