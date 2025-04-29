@@ -16,39 +16,50 @@ Functions used by the domains
 
 def client_discover_products(socket):
     """Used by a client socket to discover products from the marketplace"""
+    try:
 
-    # Get platform ip from the JSON file
-    with open("src/platform1/marketplace.json", "r") as f:
-        marketplace = json.load(f)
-    platform_ip = marketplace["platform"]["domain"]
+        # Get platform ip from the JSON file
+        with open("src/platform1/marketplace.json", "r") as f:
+            marketplace = json.load(f)
+        platform_ip = marketplace["platform"]["domain"]
 
-    # Connect to the platform and get the mesh products
-    socket.connect((platform_ip, 9000))
-    socket.sendall(b"discover")
-    connection = socket.recv(1024).decode()
-    if connection == "ok":
-        products = socket.recv(1024).decode()
-        return products
-    else:
-        print("Error in discovering products")
+        # Connect to the platform and get the mesh products
+        socket.connect((platform_ip, 9000))
+        socket.sendall(b"discover")
+        connection = socket.recv(1024).decode()
+        if connection == "ok":
+            products = socket.recv(1024).decode()
+            return products
+        else:
+            print("Error in discovering products")
+            return None
+    except Exception as e:
+        print(f"Error in client discover products: {e}")
         return None
+    finally:
+        socket.close()
     
 def client_discover_registration(data_product, socket):
+    try:
 
-    # Get platform ip from the JSON file
-    with open("src/platform1/marketplace.json", "r") as f:
-        marketplace = json.load(f)
-    platform_ip = marketplace["platform"]["domain"]
+        # Get platform ip from the JSON file
+        with open("src/platform1/marketplace.json", "r") as f:
+            marketplace = json.load(f)
+        platform_ip = marketplace["platform"]["domain"]
 
-    # Connect to the platform and register the data product in the marketplace
-    socket.connect((platform_ip, 9000))
-    socket.sendall(b"discover/registration")
-    connection = socket.recv(1024).decode()
-    if connection == "ok":
-        socket.sendall(data_product.name.encode())
-        response = socket.recv(1024).decode()
-        if response == "ok":
-            print(f"Data product {data_product.name} registered successfully")
+        # Connect to the platform and register the data product in the marketplace
+        socket.connect((platform_ip, 9000))
+        socket.sendall(b"discover/registration")
+        connection = socket.recv(1024).decode()
+        if connection == "ok":
+            socket.sendall(data_product.name.encode())
+            response = socket.recv(1024).decode()
+            if response == "ok":
+                print(f"Data product {data_product.name} registered successfully")
+    except Exception as e:
+        print(f"Error in client discover registration: {e}")
+    finally:
+        socket.close()
 
 def client_consume(product_name, product_domain, client_socket):
     try:
@@ -68,6 +79,8 @@ def client_consume(product_name, product_domain, client_socket):
     except Exception as e:
         print(f"Error in client consume: {e}")
         return None
+    finally:
+        client_socket.close()
     
 def server_consume(server_socket, products, client_socket, zero_trust):
     # Authenticate the user
