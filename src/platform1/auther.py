@@ -36,6 +36,8 @@ def client_authenticate(action, addr_to_check, socket):
     except Exception as e:
         print(f"Exception during authentication: {e}")
         return False
+    finally:
+        socket.close()
 
 def server_authenticate(action, socket):
     """Authenticate the user based on the action and address"""
@@ -69,4 +71,6 @@ def server_authenticate(action, socket):
     except Exception as e:
         print(f"Error in authentication process: {e}")
         return False
+    finally:
+        socket.close()
     
