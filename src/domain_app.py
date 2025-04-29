@@ -60,6 +60,8 @@ def handle_client(domain_server):
             domain_server.sendall(b"ok")
             auth_client_socket = socket_setup(server=False)
             gateway.server_consume(domain_server, prodoucts, auth_client_socket, zero_trust)
+            break
+        print(f"Some other error: {data}")
         break
 
     print(f"Connection with {domain_server.getpeername()[0]} closed")
