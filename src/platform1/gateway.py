@@ -31,7 +31,7 @@ def client_discover_products(socket):
             products = socket.recv(1024).decode()
             return products
         else:
-            print("Error in discovering products")
+            print("Error in discovering products", connection)
             return None
     except Exception as e:
         print(f"Error in client discover products: {e}")
@@ -41,7 +41,6 @@ def client_discover_products(socket):
     
 def client_discover_registration(data_product, socket):
     try:
-
         # Get platform ip from the JSON file
         with open("src/platform1/marketplace.json", "r") as f:
             marketplace = json.load(f)
