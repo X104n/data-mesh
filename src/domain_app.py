@@ -175,7 +175,10 @@ if __name__ == "__main__":
 
     input("Press Enter to start consuming products from the mesh...")
 
-    while True:
+    i = 0
+
+    while i < 100_000:
+        i += 1
         start_time = time.time()
 
         print("Consume product start")
@@ -199,7 +202,7 @@ if __name__ == "__main__":
 
         print(f"Products not including this domains product: {choose_products}")
         
-        chosen_product = choose_products[0]
+        chosen_product = choose_products[i % len(choose_products)]
         print(f"Chosen product: {chosen_product}")
 
         # Get the product from the domain
