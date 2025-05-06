@@ -92,12 +92,10 @@ def server_consume(server_socket, products, client_socket, zero_trust):
         if not client_authenticate("consume", addr, client_socket):
             server_socket.sendall(b"error")
             return
-# In gateway.py, modify the non-zero trust section:
     else:
-        # Get domain list
         marketplace = IP_ADDRESSES
         
-        # Check if the address is in the marketplace JSON file
+        # Check if the address is in the "marketplace"
         addr = server_socket.getpeername()[0]
         print(f"NON-ZERO TRUST CHECK: Address {addr} is being checked against {marketplace}")
         if addr in marketplace:

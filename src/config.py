@@ -32,7 +32,7 @@ def ip_setup():
 def socket_setup(server=True):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     if server:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # TODO
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         host = ip_setup()
         port = 9000
         sock.bind((host, port))
