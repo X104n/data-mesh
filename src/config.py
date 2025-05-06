@@ -30,12 +30,12 @@ def ip_setup():
     return ip
 
 def socket_setup(server=True):
-    socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     if server:
-        socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         host = ip_setup()
         port = 9000
-        socket.bind((host, port))
-        socket.listen(10)
+        sock.bind((host, port))
+        sock.listen(10)
         print(f"Host and port {host}:{port}")
-    return socket
+    return sock
