@@ -132,7 +132,7 @@ if __name__ == "__main__":
     '''
 
     domain_server = socket_setup()
-    threading.Thread(target=start_listening, args=(domain_server,), daemon=True).start()
+    threading.Thread(target=start_listening, args=(domain_server,)).start()
 
     domain_ip = domain_server.getsockname()[0]
     print(f"Domain server started at {domain_ip}")
