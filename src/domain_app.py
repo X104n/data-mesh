@@ -118,13 +118,13 @@ if __name__ == "__main__":
     '''
 
 
-    with open("src/platform1/marketplace.json", "w") as f:
+    with open("src/platform1/local_db.json", "w") as f:
         platform_up = '{"platform": {"domain": "10.0.3.5"} }'
         json.dump(json.loads(platform_up), f, indent=4)
 
-    with open("src/platform1/marketplace.json", "r") as f:
-        marketplace = json.load(f)
-    platform_ip = marketplace["platform"]["domain"]
+    with open("src/platform1/local_db.json", "r") as f:
+        db = json.load(f)
+    platform_ip = db["platform"]["domain"]
 
     '''
     Starting the domain server socket
