@@ -1,6 +1,6 @@
 import json
 from config import IP_ADDRESSES
-from logger import log
+from .logger import log
 
 def client_authenticate(action, addr_to_check, socket):
     """Authenticate the user based on the action and address"""
