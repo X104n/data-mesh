@@ -201,6 +201,7 @@ if __name__ == "__main__":
                 choose_products.append(product)
 
         print(f"Products not including this domains product: {choose_products}")
+        
         if len(choose_products) == 0:
             print("No products found")
             time_keeping(start_time, False)

@@ -1,5 +1,6 @@
 import json
 from config import IP_ADDRESSES
+from logger import log
 
 def client_authenticate(action, addr_to_check, socket):
     """Authenticate the user based on the action and address"""
@@ -57,13 +58,17 @@ def server_authenticate(action, socket):
     if addr_to_check in marketplace:
         if action == "discover":
             print(f"Address {addr_to_check} is eligible for discovery")
+            log("Authentication accept", addr_to_check)
             return True
         elif action == "consume":
             print(f"Address {addr_to_check} is eligible for consumption")
+            log("Authentication accept", addr_to_check)
             return True
         socket.sendall(b"error")
+        log("Authentication error", addr_to_check)
         return False
     else:
         print(f"Address {addr_to_check} is not in the marketplace")
+        log("Authentication reject", addr_to_check)
         socket.sendall(b"error")
         return False
