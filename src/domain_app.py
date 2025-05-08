@@ -10,7 +10,7 @@ from domain import DataProduct, Artifact
 from platform1 import gateway
 
 # Global variable
-prodoucts = []
+products = []
 zero_trust = False
 
 def _create_product(number: int, domain):
@@ -59,7 +59,7 @@ def handle_client(domain_server):
             print("Received consume request")
             domain_server.sendall(b"ok")
             auth_client_socket = socket_setup(server=False)
-            gateway.server_consume(domain_server, prodoucts, auth_client_socket, zero_trust)
+            gateway.server_consume(domain_server, products, auth_client_socket, zero_trust)
             break
         print(f"Some other error: {data}")
         break
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     '''
 
     data_product = _create_product(1, domain_ip)
-    prodoucts.append(data_product)
+    products.append(data_product)
 
     artifact = _create_artifact(1, data_product=data_product, data={"key1": "value1"})
     data_product.artifacts.append(artifact)
@@ -201,9 +201,14 @@ if __name__ == "__main__":
                 choose_products.append(product)
 
         print(f"Products not including this domains product: {choose_products}")
-        
-        chosen_product = choose_products[i % len(choose_products)]
-        print(f"Chosen product: {chosen_product}")
+        if len(choose_products) == 0:
+            print("No products found")
+            time_keeping(start_time, False)
+            time.sleep(5)
+            continue
+        else:
+            chosen_product = choose_products[i % len(choose_products)]
+            print(f"Chosen product: {chosen_product}")
 
         # Get the product from the domain
         consume_client = socket_setup(server=False)
