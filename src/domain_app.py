@@ -75,7 +75,7 @@ def start_listening(server):
             conn, addr = server.accept()
             print(f"Connection from {addr} has been established!")
             
-            threading.Thread(target=handle_client, args=(conn,)).start()
+            threading.Thread(target=handle_client, args=(conn,), daemon=True).start()
         except socket.timeout:
             continue
         except KeyboardInterrupt:
