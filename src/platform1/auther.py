@@ -51,11 +51,23 @@ def server_authenticate(action, socket):
     print(f"Received authentication request for action: {action}")
     print(f"Address to check: {addr_to_check}")
 
-    # Get domain list
-    marketplace = IP_ADDRESSES
-
-    # Check if the address is in the marketplace JSON file
-    if addr_to_check in marketplace:
+    # Instead of using IP_ADDRESSES, check log.csv for previous discovery activity
+    discovered_ips = set()
+    try:
+        with open("src/platform1/log.csv", "r") as f:
+            for line in f:
+                parts = line.strip().split(";")
+                if len(parts) >= 3:
+                    ip = parts[1]
+                    message = parts[2]
+                    # Check if this IP has successfully discovered before
+                    if message.startswith("Discovering") or message == "Authentication accept":
+                        discovered_ips.add(ip)
+    except FileNotFoundError:
+        print("Log file not found. Authentication will fail.")
+    
+    # Check if the address has previously discovered products
+    if addr_to_check in discovered_ips:
         if action == "discover":
             print(f"Address {addr_to_check} is eligible for discovery")
             log("Authentication accept", addr_to_check)
@@ -68,7 +80,7 @@ def server_authenticate(action, socket):
         log("Authentication error", addr_to_check)
         return False
     else:
-        print(f"Address {addr_to_check} is not in the marketplace")
+        print(f"Address {addr_to_check} has no record of discovery in logs")
         log("Authentication reject", addr_to_check)
         socket.sendall(b"error")
         return False
