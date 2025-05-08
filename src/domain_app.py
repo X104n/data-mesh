@@ -37,7 +37,7 @@ def mesh_hello(domain_client):
         domain_client.sendall(b"hello")
         data = domain_client.recv(1024)
         if data == b"ok":
-            print("Announced presence to the mesh")
+            print("Announced presence to the platform")
         break
 
 def get_mesh(domain_client):
