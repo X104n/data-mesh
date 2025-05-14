@@ -124,8 +124,9 @@ Functions used by the platform
 =========================
 '''
 
-def platform_discover_products(domain_server):
-    log_helper("Discovering products", domain_server)
+def platform_discover_products(domain_server, zero_trust):
+    if zero_trust:
+        log_helper("Discovering products", domain_server)
 
     # Get the mesh products from the marketplace JSON file
     with open("src/platform1/marketplace.json", "r") as f:

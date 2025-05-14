@@ -6,6 +6,8 @@ import json
 from config import socket_setup
 from platform1 import auther, gateway, logger
 
+zero_trust = False
+
 def start_listening(server):
     """Start listening, and create new thread for each connection"""
     server.settimeout(1)
@@ -66,7 +68,7 @@ def handle_client(conn):
             elif data == "discover":
                 print("Received discover")
                 conn.sendall(b"ok")
-                gateway.platform_discover_products(conn)
+                gateway.platform_discover_products(conn, zero_trust)
 
         # Authenticate request
             elif data == "authenticate":
@@ -85,6 +87,8 @@ def handle_client(conn):
         conn.close()
 
 if __name__ == "__main__":
+    zero_trust = input("Do you want to enable zero trust? (y/n): ").strip().lower() == 'y'
+    
     # Clear json file from previous session
     with open("src/platform1/marketplace.json", "w") as f:
         json.dump({}, f, indent=4)

@@ -1,6 +1,7 @@
 import json
 from config import IP_ADDRESSES
 from .logger import log
+from collections import deque
 
 def client_authenticate(action, addr_to_check, socket):
     """Authenticate the user based on the action and address"""
@@ -51,20 +52,27 @@ def server_authenticate(action, socket):
     print(f"Received authentication request for action: {action}")
     print(f"Address to check: {addr_to_check}")
 
-    # Instead of using IP_ADDRESSES, check log.csv for previous discovery activity
+    # Check only the last 1,000 lines of log.csv
     discovered_ips = set()
     try:
+        # Use deque with maxlen to only keep the last 1,000 lines
+        last_lines = deque(maxlen=1_000)
         with open("src/platform1/log.csv", "r") as f:
             for line in f:
-                parts = line.strip().split(";")
-                if len(parts) >= 3:
-                    ip = parts[1]
-                    message = parts[2]
-                    # Check if this IP has successfully discovered before
-                    if message.startswith("Discovering") or message == "Authentication accept":
-                        discovered_ips.add(ip)
+                last_lines.append(line)
+        
+        # Process only the lines in our deque
+        for line in last_lines:
+            parts = line.strip().split(";")
+            if len(parts) >= 3:
+                ip = parts[1]
+                message = parts[2]
+                # Check if this IP has successfully discovered before
+                if message.startswith("Discovering") or message == "Authentication accept":
+                    discovered_ips.add(ip)
     except FileNotFoundError:
         print("Log file not found. Authentication will fail.")
+    
     
     # Check if the address has previously discovered products
     if addr_to_check in discovered_ips:
