@@ -83,6 +83,7 @@ def handle_client(conn):
                 else:
                     conn.sendall(b"ok")
 
+            print(f"Received request: {request_type}")
             break
     except Exception as e:
         print(f"Error handling client: {e}")
