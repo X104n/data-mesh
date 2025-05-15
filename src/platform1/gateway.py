@@ -67,11 +67,21 @@ def client_consume(product_name, product_domain, client_socket):
     try:
         client_socket.connect((product_domain, 9000))
         client_socket.sendall(b"consume")
-        connection = client_socket.recv(1024).decode()
-        if connection == "ok":
-            client_socket.sendall(product_name.encode())
-            data = client_socket.recv(1024).decode()
-            return data
+        
+        request_reccived = client_socket.recv(1024).decode()
+        if request_reccived == "ok":
+            authenticated = client_socket.recv(1024).decode()
+
+            if authenticated == "authentication failed":
+                return authenticated
+            elif authenticated == "ok":
+                client_socket.sendall(product_name.encode())
+                data = client_socket.recv(1024).decode()
+                return data
+            else:
+                print("Error in authentication")
+                return None
+        
         else:
             print("Error in consuming data")
             return None
@@ -90,9 +100,12 @@ def server_consume(server_socket, products, client_socket, zero_trust):
     if zero_trust:
         addr = server_socket.getpeername()[0]
         if not client_authenticate("consume", addr, client_socket):
-            server_socket.sendall(b"error")
+            server_socket.sendall(b"authentication failed")
             return
     else:
+        # Authenticate the user
+        server_socket.sendall(b"ok")
+        
         marketplace = IP_ADDRESSES
         
         # Check if the address is in the "marketplace"

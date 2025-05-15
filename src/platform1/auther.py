@@ -1,5 +1,4 @@
 import json
-from config import IP_ADDRESSES
 from .logger import log
 from collections import deque
 
@@ -67,8 +66,8 @@ def server_authenticate(action, socket):
             if len(parts) >= 3:
                 ip = parts[1]
                 message = parts[2]
-                # Check if this IP has successfully discovered before
-                if message.startswith("Discovering") or message == "Authentication accept":
+
+                if message == "Hello":
                     discovered_ips.add(ip)
     except FileNotFoundError:
         print("Log file not found. Authentication will fail.")

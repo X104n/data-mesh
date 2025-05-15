@@ -23,13 +23,12 @@ def _create_product(number: int, domain):
     return data_product
 
 def _create_artifact(number: int, data_product=None, data={"key": "value"}):
-    artifact = Artifact(
+    return Artifact(
         data_id=number,
         name=f"Artifact {number}",
         data_product=data_product,
         data=data,
     )
-    return artifact
 
 def mesh_hello(domain_client):
     while True:
@@ -58,6 +57,7 @@ def handle_client(domain_server):
         elif data == "consume":
             print("Received consume request")
             domain_server.sendall(b"ok")
+
             auth_client_socket = socket_setup(server=False)
             gateway.server_consume(domain_server, products, auth_client_socket, zero_trust)
             break
@@ -100,23 +100,13 @@ def time_keeping(start_time, product_found):
 
 if __name__ == "__main__":
     '''
-    Setup
+    Zero Trust, and clear files
     ==========================
     '''
-    
-    zT_bool = input("Should the program use zero trust? (y/n): ").strip().lower()
-    if zT_bool == "y":
-        zero_trust = True
-    else:
-        zero_trust = False
+    zero_trust = input("Should the program use zero trust? (y/n): ").strip().lower() == "y"
 
     with open("src/domain_app.csv", "w") as f:
         writer = csv.writer(f)
-    '''
-    Set the platform IP address
-    ===========================
-    '''
-
 
     with open("src/platform1/local_db.json", "w") as f:
         platform_up = '{"platform": {"domain": "10.0.3.5"} }'
@@ -125,71 +115,53 @@ if __name__ == "__main__":
     with open("src/platform1/local_db.json", "r") as f:
         db = json.load(f)
     platform_ip = db["platform"]["domain"]
-
     '''
     Starting the domain server socket
     ==========================
     '''
-
     domain_server = socket_setup()
     threading.Thread(target=start_listening, args=(domain_server,)).start()
 
     domain_ip = domain_server.getsockname()[0]
     print(f"Domain server started at {domain_ip}")
-    
     '''
     Announce presence to the platform
     ==========================
     '''
-
-    domain_client = socket_setup(server=False)
-    mesh_hello(domain_client)
-
-    #domain_client = socket_setup(server=False)
-    #domains = get_mesh(domain_client)
-    #print(f"Domains: {domains}")
-
+    hello_client = socket_setup(server=False)
+    mesh_hello(hello_client)
     '''
     Create a data product and artifacts
     ==========================
     '''
-
     data_product = _create_product(1, domain_ip)
     products.append(data_product)
 
     artifact = _create_artifact(1, data_product=data_product, data={"key1": "value1"})
     data_product.artifacts.append(artifact)
-    
     '''
     Make the data product discoverable
     ==========================
     '''
-
     register_client = socket_setup(server=False)
     gateway.client_discover_registration(data_product, register_client)
-
     '''
     Choose products from the mesh on repeat
     ==========================
     '''
-
     input("Press Enter to start consuming products from the mesh...")
 
-    i = 0
-
-    while i < 10_000:
-        i += 1
-        start_time = time.time()
-
+    for i in range(0, 10_000):
         print("Consume product start")
+
+        start_time = time.time()
 
         # Visit the marketplace to get all the mesh products
         discover_client = socket_setup(server=False)
         mesh_products_json = gateway.client_discover_products(discover_client)
         if mesh_products_json is None:
-            print("No mesh products found")
             time_keeping(start_time, False)
-            time.sleep(5)
+            time.sleep(1)
             continue
         mesh_products = json.loads(mesh_products_json)
         print(f"Mesh products: {mesh_products}")
@@ -203,9 +175,8 @@ if __name__ == "__main__":
         print(f"Products not including this domains product: {choose_products}")
         
         if len(choose_products) == 0:
-            print("No products found")
             time_keeping(start_time, False)
-            time.sleep(5)
+            time.sleep(1)
             continue
         else:
             chosen_product = choose_products[i % len(choose_products)]
@@ -216,9 +187,19 @@ if __name__ == "__main__":
         product_name = chosen_product[0]
         domain = chosen_product[1]
         product = gateway.client_consume(product_name, domain, consume_client)
-        print(f"Product: {product}")
+        
+        if product is None:
+            time_keeping(start_time, False)
+            time.sleep(1)
+            continue
+
+        elif product == "authentication failed":
+            hello_client = socket_setup(server=False)
+            mesh_hello(hello_client)
+            continue
 
         time_keeping(start_time, True)
+        print(f"Product: {product}")
         
     '''
     Make sure the server do not exit
