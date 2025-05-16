@@ -25,6 +25,9 @@ def client_authenticate(action, addr_to_check, socket):
             if auth_response == "ok":
                 print(f"User authenticated for action: {action}")
                 return True
+            elif auth_response == "authentication failed":
+                print(f"Authentication not in logs: {action}")
+                return False
             else:
                 print(f"Authentication failed for action: {action} - response: {auth_response}")
                 return False
@@ -37,54 +40,46 @@ def client_authenticate(action, addr_to_check, socket):
     finally:
         socket.close()
 
-def server_authenticate(action, socket):
-    
-    data = socket.recv(1024).decode()
-    if not data:
+def server_authenticate(action, socket, zero_trust):
+
+    authentication_request = socket.recv(1024).decode()
+    if not authentication_request:
         return False
 
-    # Split the data into action and address
-    action, addr_to_check = data.split("/")
+    action, addr_to_check = authentication_request.split("/")
     print(f"Received authentication request for action: {action}")
     print(f"Address to check: {addr_to_check}")
 
-    # Check only the last 1,000 lines of log.csv
-    discovered_ips = set()
-    try:
-        # Use deque with maxlen to only keep the last 1,000 lines
-        last_lines = deque(maxlen=1_000)
-        with open("src/platform1/log.csv", "r") as f:
-            for line in f:
-                last_lines.append(line)
-        
-        # Process only the lines in our deque
-        for line in last_lines:
-            parts = line.strip().split(";")
-            if len(parts) >= 3:
-                ip = parts[1]
-                message = parts[2]
+    valid_address = False
 
-                if message == "Hello":
-                    discovered_ips.add(ip)
-    except FileNotFoundError:
-        print("Log file not found. Authentication will fail.")
+    if zero_trust:
+        with open("src/platform1/log.csv", "r") as f:
+            last_lines = deque(f, 1_000)
+        last_lines = [line.strip().split(";") for line in last_lines]
     
+        for line in last_lines:
+            if line[1] == addr_to_check:
+                print(f"Found address {addr_to_check} in logs")
+                if line[3] == "hello":
+                    valid_address = True
+                    print(f"Address {addr_to_check} is eligible for consumption")
+    else:
+        valid_address = True
     
-    # Check if the address has previously discovered products
-    if addr_to_check in discovered_ips:
+    if valid_address:
         if action == "discover":
             print(f"Address {addr_to_check} is eligible for discovery")
-            log("Authentication accept", addr_to_check)
+            log("Authentication accept to discover request", addr_to_check)
             return True
         elif action == "consume":
             print(f"Address {addr_to_check} is eligible for consumption")
-            log("Authentication accept", addr_to_check)
+            log("Authentication accept to consume request", addr_to_check)
             return True
         socket.sendall(b"error")
         log("Authentication error", addr_to_check)
         return False
     else:
-        print(f"Address {addr_to_check} has no record of discovery in logs")
+        print(f"Address {addr_to_check} is REJECTED - not in logs")
         log("Authentication reject", addr_to_check)
-        socket.sendall(b"error")
+        socket.sendall(b"authentication failed")
         return False

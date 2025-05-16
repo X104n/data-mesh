@@ -118,10 +118,10 @@ def server_consume(server_socket, products, client_socket, zero_trust):
             server_socket.sendall(b"error")
             return
 
-    data = server_socket.recv(1024).decode()
+    dataproduct_request = server_socket.recv(1024).decode()
     
     for product in products:
-        if product.name == data:
+        if product.name == dataproduct_request:
             product_dict = product.to_dict()
             json_str = json.dumps(product_dict)
             server_socket.sendall(json_str.encode())
