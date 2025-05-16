@@ -151,7 +151,7 @@ if __name__ == "__main__":
     '''
     input("Press Enter to start consuming products from the mesh...")
 
-    for i in range(0, 10_000):
+    for i in range(0, 100_000):
         print("Consume product start")
 
         start_time = time.time()
