@@ -75,8 +75,8 @@ def time_keeping(start_time, message=None):
 
     with open("src/domain_app.csv", "a", newline='') as f:
         writer = csv.writer(f, delimiter=';')
-        if message is not None:
-            writer.writerow([elapsed_time, message])
+        if message is None:
+            writer.writerow([message])
         else:
             writer.writerow([elapsed_time])
 
@@ -177,7 +177,7 @@ if __name__ == "__main__":
 
         elif product == "Authentication failed":
             time_keeping(start_time, "Authentication failed")
-            
+
             start_time = time.time()
             hello_client = socket_setup(server=False)
             gateway.client_hello(hello_client)
