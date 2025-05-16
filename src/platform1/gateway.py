@@ -13,7 +13,18 @@ def log_helper(message, socket):
 Functions used by the domains
 =========================
 '''
+def client_hello(domain_client):
+        with open("src/platform1/marketplace.json", "r") as f:
+            marketplace = json.load(f)
+        platform_ip = marketplace["platform"]["domain"]
 
+        domain_client.connect((platform_ip, 9000))
+        domain_client.sendall(b"hello")
+        data = domain_client.recv(1024)
+        if data == b"ok":
+            return True
+        return False
+        
 def client_discover_products(socket):
     """Used by a client socket to discover products from the marketplace"""
     try:

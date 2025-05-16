@@ -30,24 +30,6 @@ def _create_artifact(number: int, data_product=None, data={"key": "value"}):
         data=data,
     )
 
-def mesh_hello(domain_client):
-    while True:
-        domain_client.connect((platform_ip, 9000))
-        domain_client.sendall(b"hello")
-        data = domain_client.recv(1024)
-        if data == b"ok":
-            print("Announced presence to the platform")
-        break
-
-def get_mesh(domain_client):
-    domain_client.connect((platform_ip, 9000))
-    domain_client.sendall(b"get_mesh")
-    data = domain_client.recv(1024)
-    if data:
-        return data.decode()
-    else:
-        print("No data received from the mesh")
-
 def handle_client(domain_server):
     while True:
         request_type = domain_server.recv(1024).decode()
@@ -82,21 +64,21 @@ def start_listening(server):
             print("Server shutting down...")
             break
 
-def time_keeping(start_time, product_found):
+def time_keeping(start_time, message=None):
     end_time = time.time()
     elapsed_time = end_time - start_time
     print("=====================\n")
     print(f"Elapsed time: {elapsed_time} seconds")
-    if not product_found:
+    if message == None:
         print("No product found")
     print("\n=====================")
 
-    # Write the elapsed_time to a CSV file
     with open("src/domain_app.csv", "a", newline='') as f:
-        writer = csv.writer(f)
-        if not product_found:
-            writer.writerow(["No product found"])
-        writer.writerow([elapsed_time])
+        writer = csv.writer(f, delimiter=';')
+        if message is not None:
+            writer.writerow([elapsed_time, message])
+        else:
+            writer.writerow([elapsed_time])
 
 if __name__ == "__main__":
     '''
@@ -129,7 +111,7 @@ if __name__ == "__main__":
     ==========================
     '''
     hello_client = socket_setup(server=False)
-    mesh_hello(hello_client)
+    gateway.client_hello(hello_client)
     '''
     Create a data product and artifacts
     ==========================
@@ -160,7 +142,7 @@ if __name__ == "__main__":
         discover_client = socket_setup(server=False)
         mesh_products_json = gateway.client_discover_products(discover_client)
         if mesh_products_json is None:
-            time_keeping(start_time, False)
+            time_keeping(start_time, "Mesh products not found")
             time.sleep(1)
             continue
         mesh_products = json.loads(mesh_products_json)
@@ -175,7 +157,7 @@ if __name__ == "__main__":
         print(f"Products not including this domains product: {choose_products}")
         
         if len(choose_products) == 0:
-            time_keeping(start_time, False)
+            time_keeping(start_time, "No products to consume")
             time.sleep(1)
             continue
         else:
@@ -189,13 +171,17 @@ if __name__ == "__main__":
         product = gateway.client_consume(product_name, domain, consume_client)
         
         if product is None:
-            time_keeping(start_time, False)
+            time_keeping(start_time, "No product found")
             time.sleep(1)
             continue
 
         elif product == "Authentication failed":
+            time_keeping(start_time, "Authentication failed")
+            
+            start_time = time.time()
             hello_client = socket_setup(server=False)
-            mesh_hello(hello_client)
+            gateway.client_hello(hello_client)
+            time_keeping(start_time, "Domain hello")
             continue
 
         time_keeping(start_time, True)

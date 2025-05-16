@@ -8,7 +8,6 @@ from platform1 import auther, gateway, logger
 zero_trust = False
 
 def start_listening(server):
-    """Start listening, and create new thread for each connection"""
     server.settimeout(1)
     while True:
         try:
@@ -23,19 +22,14 @@ def start_listening(server):
             break
 
 def handle_client(conn):
-    """Handle client connection"""
     try:
         while True:
-            
             request_type = conn.recv(1024).decode()
 
             if not request_type:
                 break
-        
-        # Hello request
             elif request_type == "hello":
                 addr = conn.getpeername()[0]
-                print(f"Received hello from {addr}")
 
                 # Add domain to json file.
                 with open("src/platform1/marketplace.json", "r") as f:
@@ -51,8 +45,7 @@ def handle_client(conn):
                 logger.log("Hello", addr)
 
                 conn.sendall(b"ok")
-        
-        # Get mesh request
+
             elif request_type == "get_mesh":
                 print("Sending mesh data")
                 with open("src/platform1/marketplace.json", "r") as f:
@@ -60,23 +53,18 @@ def handle_client(conn):
                 mesh_data = json.dumps(list(marketplace.keys())).encode()
                 conn.sendall(mesh_data)
 
-        # Registration request
             elif request_type == "discover/registration":
-                print("Received discover/registration")
                 conn.sendall(b"ok")
                 gateway.platform_discover_registration(conn)
 
-        # Discover request
             elif request_type == "discover":
                 print("Received discover")
                 conn.sendall(b"ok")
                 gateway.platform_discover_products(conn, zero_trust)
 
-        # Authenticate request
             elif request_type == "authenticate":
                 print("Received authentication request")
                 conn.sendall(b"ok")
-
                 if not auther.server_authenticate("authenticate", conn, zero_trust):
                     print("Authentication failed")
                     conn.sendall(b"authentication failed")
@@ -95,12 +83,9 @@ if __name__ == "__main__":
 
     with open("src/platform1/marketplace.json", "w") as f:
         json.dump({}, f, indent=4)
-
-    # Clear log file
     logger.reset_log_file()
 
     server = socket_setup()
-
     '''
     Wrinting the platforms ip to the marketplace
     ====================
@@ -116,7 +101,6 @@ if __name__ == "__main__":
         with open("src/platform1/marketplace.json", "w") as f:
             json.dump(marketplace, f, indent=4)
     print(f"Host and port {host}:{server.getsockname()[1]}")
-    
     '''
     Starting the platform server socket
     ====================
