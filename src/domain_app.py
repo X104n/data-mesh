@@ -120,7 +120,7 @@ if __name__ == "__main__":
     ==========================
     '''
     domain_server = socket_setup()
-    threading.Thread(target=start_listening, args=(domain_server,)).start()
+    threading.Thread(target=start_listening, args=(domain_server,), daemon=True).start()
 
     domain_ip = domain_server.getsockname()[0]
     print(f"Domain server started at {domain_ip}")
@@ -200,12 +200,10 @@ if __name__ == "__main__":
 
         time_keeping(start_time, True)
         print(f"Product: {product}")
-        
     '''
     Make sure the server do not exit
     ==========================
     '''
-
     try:
         while True:
             time.sleep(1)

@@ -7,26 +7,19 @@ def client_authenticate(action, addr_to_check, socket):
         with open("src/platform1/marketplace.json", "r") as f:
             marketplace = json.load(f)
         platform_ip = marketplace["platform"]["domain"]
-
-        print(f"Authenticating {addr_to_check} for action {action} with platform {platform_ip}")
         
         socket.connect((platform_ip, 9000))
         socket.sendall("authenticate".encode())
         request_received = socket.recv(1024).decode()
         
         if request_received == "ok":
-            
             auth_msg = f"{action}/{addr_to_check}"
             socket.sendall(auth_msg.encode())
             
             auth_response = socket.recv(1024).decode()
-            print(f"Authentication response: '{auth_response}'")
-            
             if auth_response == "ok":
-                print(f"User authenticated for action: {action}")
                 return True
             elif auth_response == "authentication failed":
-                print(f"Authentication not in logs: {action}")
                 return False
             else:
                 print(f"Authentication failed for action: {action} - response: {auth_response}")
