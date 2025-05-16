@@ -3,9 +3,7 @@ from .logger import log
 from collections import deque
 
 def client_authenticate(action, addr_to_check, socket):
-    """Authenticate the user based on the action and address"""
     try:
-        # Get the platform ip from the JSON file
         with open("src/platform1/marketplace.json", "r") as f:
             marketplace = json.load(f)
         platform_ip = marketplace["platform"]["domain"]
@@ -14,25 +12,24 @@ def client_authenticate(action, addr_to_check, socket):
         
         socket.connect((platform_ip, 9000))
         socket.sendall("authenticate".encode())
-        connection = socket.recv(1024).decode()
+        request_received = socket.recv(1024).decode()
         
-        if connection == "ok":
-            # Send the action and address to check
+        if request_received == "ok":
+            
             auth_msg = f"{action}/{addr_to_check}"
-            print(f"Sending authentication message: {auth_msg}")
             socket.sendall(auth_msg.encode())
             
-            response = socket.recv(1024).decode()
-            print(f"Authentication response: '{response}'")
+            auth_response = socket.recv(1024).decode()
+            print(f"Authentication response: '{auth_response}'")
             
-            if response == "ok":
+            if auth_response == "ok":
                 print(f"User authenticated for action: {action}")
                 return True
             else:
-                print(f"Authentication failed for action: {action} - response: {response}")
+                print(f"Authentication failed for action: {action} - response: {auth_response}")
                 return False
         else:
-            print(f"Error in authentication process - response: {connection}")
+            print(f"Error in authentication process - response: {request_received}")
             return False
     except Exception as e:
         print(f"Exception during authentication: {e}")
@@ -41,7 +38,7 @@ def client_authenticate(action, addr_to_check, socket):
         socket.close()
 
 def server_authenticate(action, socket):
-    """Authenticate the user based on the action and address"""
+    
     data = socket.recv(1024).decode()
     if not data:
         return False

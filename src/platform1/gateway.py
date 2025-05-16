@@ -68,16 +68,20 @@ def client_consume(product_name, product_domain, client_socket):
         client_socket.connect((product_domain, 9000))
         client_socket.sendall(b"consume")
         
-        request_reccived = client_socket.recv(1024).decode()
-        if request_reccived == "ok":
+        request_received = client_socket.recv(1024).decode()
+        if request_received == "ok":
+            print(f"Received request to consume {product_name} from {product_domain}")
             authenticated = client_socket.recv(1024).decode()
-
-            if authenticated == "authentication failed":
-                return authenticated
-            elif authenticated == "ok":
+            
+            if authenticated == "ok":
+                print(f"Authenticated for consumption of {product_name}")
                 client_socket.sendall(product_name.encode())
-                data = client_socket.recv(1024).decode()
-                return data
+                requested_product = client_socket.recv(1024).decode()
+                return requested_product
+            
+            elif authenticated == "authentication failed":
+                return authenticated
+            
             else:
                 print("Error in authentication")
                 return None
@@ -95,36 +99,29 @@ def client_consume(product_name, product_domain, client_socket):
         client_socket.close()
     
 def server_consume(server_socket, products, client_socket, zero_trust):
-    # Authenticate the user
 
     if zero_trust:
         addr = server_socket.getpeername()[0]
         if not client_authenticate("consume", addr, client_socket):
-            server_socket.sendall(b"authentication failed")
+            server_socket.sendall(b"Authentication failed")
             return
-    else:
-        # Authenticate the user
+        print(f"Address {addr} is eligible for consumption zt")
         server_socket.sendall(b"ok")
-        
-        marketplace = IP_ADDRESSES
-        
-        # Check if the address is in the "marketplace"
+    else:
+        valid_ips = IP_ADDRESSES
         addr = server_socket.getpeername()[0]
-        print(f"NON-ZERO TRUST CHECK: Address {addr} is being checked against {marketplace}")
-        if addr in marketplace:
+        if addr in valid_ips:
             print(f"Address {addr} is eligible for consumption")
+            server_socket.sendall(b"ok")
         else:
             print(f"Address {addr} REJECTED - not in IP_ADDRESSES list")
             server_socket.sendall(b"error")
             return
 
-    # Get the product name from the client
     data = server_socket.recv(1024).decode()
     
-    # Find the correlating data product from the product list
     for product in products:
         if product.name == data:
-            # Convert dictionary to JSON string first, then encode to bytes
             product_dict = product.to_dict()
             json_str = json.dumps(product_dict)
             server_socket.sendall(json_str.encode())

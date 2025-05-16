@@ -49,19 +49,19 @@ def get_mesh(domain_client):
         print("No data received from the mesh")
 
 def handle_client(domain_server):
-    """Handle client connection"""
     while True:
-        data = domain_server.recv(1024).decode()
-        if not data:
+        request_type = domain_server.recv(1024).decode()
+        if not request_type:
             break
-        elif data == "consume":
+        elif request_type == "consume":
             print("Received consume request")
             domain_server.sendall(b"ok")
 
             auth_client_socket = socket_setup(server=False)
             gateway.server_consume(domain_server, products, auth_client_socket, zero_trust)
             break
-        print(f"Some other error: {data}")
+        else:
+            print(f"Unknown request type: {request_type}")
         break
 
     print(f"Connection with {domain_server.getpeername()[0]} closed")
@@ -193,7 +193,7 @@ if __name__ == "__main__":
             time.sleep(1)
             continue
 
-        elif product == "authentication failed":
+        elif product == "Authentication failed":
             hello_client = socket_setup(server=False)
             mesh_hello(hello_client)
             continue
