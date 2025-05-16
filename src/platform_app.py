@@ -77,7 +77,7 @@ def handle_client(conn):
                 print("Received authentication request")
                 conn.sendall(b"ok")
 
-                if not auther.server_authenticate("authenticate", conn):
+                if not auther.server_authenticate("authenticate", conn, zero_trust):
                     print("Authentication failed")
                     conn.sendall(b"authentication failed")
                 else:
