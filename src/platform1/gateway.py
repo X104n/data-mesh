@@ -83,7 +83,7 @@ def client_consume(product_name, product_domain, client_socket):
                 return authenticated
             
             else:
-                print("Error in authentication")
+                print(f"Error in authentication - Auth response: {authenticated}")
                 return None
         
         else:
