@@ -79,7 +79,7 @@ def client_consume(product_name, product_domain, client_socket):
                 requested_product = client_socket.recv(1024).decode()
                 return requested_product
             
-            elif authenticated == "authentication failed":
+            elif authenticated == "Authentication failed":
                 return authenticated
             
             else:
