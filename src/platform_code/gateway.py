@@ -14,7 +14,7 @@ Functions used by the domains
 =========================
 '''
 def client_hello(domain_client):
-        with open("src/platform-code/marketplace.json", "r") as f:
+        with open("src/platform_code/marketplace.json", "r") as f:
             marketplace = json.load(f)
         platform_ip = marketplace["platform"]["domain"]
 
@@ -29,7 +29,7 @@ def client_discover_products(socket):
     """Used by a client socket to discover products from the marketplace"""
     try:
         # Get platform ip from the JSON file
-        with open("src/platform-code/marketplace.json", "r") as f:
+        with open("src/platform_code/marketplace.json", "r") as f:
             marketplace = json.load(f)
         platform_ip = marketplace["platform"]["domain"]
 
@@ -56,7 +56,7 @@ def client_discover_products(socket):
 def client_discover_registration(data_product, socket):
     try:
         # Get platform ip from the JSON file
-        with open("src/platform-code/marketplace.json", "r") as f:
+        with open("src/platform_code/marketplace.json", "r") as f:
             marketplace = json.load(f)
         platform_ip = marketplace["platform"]["domain"]
 
@@ -150,7 +150,7 @@ def platform_discover_products(domain_server, zero_trust):
         log_helper("Discovering products", domain_server)
 
     # Get the mesh products from the marketplace JSON file
-    with open("src/platform-code/marketplace.json", "r") as f:
+    with open("src/platform_code/marketplace.json", "r") as f:
         marketplace = json.load(f)
     
     # Create a list with (product, domain) pairs
@@ -174,12 +174,12 @@ def platform_discover_registration(domain_server):
     data_product_name = domain_server.recv(1024).decode()
 
     # Adding the product to the marketplace and the domain if it doesn't exist
-    with open("src/platform-code/marketplace.json", "r") as f:
+    with open("src/platform_code/marketplace.json", "r") as f:
         marketplace = json.load(f)
     if addr in marketplace:
         if data_product_name not in marketplace[addr]["products"]:
             marketplace[addr]["products"].append(data_product_name)
-        with open("src/platform-code/marketplace.json", "w") as f:
+        with open("src/platform_code/marketplace.json", "w") as f:
             json.dump(marketplace, f, indent=4)
         domain_server.sendall(b"ok")
     else:

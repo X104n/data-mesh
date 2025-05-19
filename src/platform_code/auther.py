@@ -4,7 +4,7 @@ from collections import deque
 
 def client_authenticate(action, addr_to_check, socket):
     try:
-        with open("src/platform-code/marketplace.json", "r") as f:
+        with open("src/platform_code/marketplace.json", "r") as f:
             marketplace = json.load(f)
         platform_ip = marketplace["platform"]["domain"]
         
@@ -33,16 +33,12 @@ def client_authenticate(action, addr_to_check, socket):
     finally:
         socket.close()
 
-def server_authenticate(action, socket, zero_trust, log_file):
-
+def server_authenticate(socket, zero_trust, log_file):
     authentication_request = socket.recv(1024).decode()
     if not authentication_request:
         return False
 
     action, addr_to_check = authentication_request.split("/")
-    print(f"Received authentication request for action: {action}")
-    print(f"Address to check: {addr_to_check}")
-
     valid_address = False
 
     if zero_trust:
@@ -51,10 +47,8 @@ def server_authenticate(action, socket, zero_trust, log_file):
     
         for line in last_lines:
             if line[1] == addr_to_check:
-                print(f"Found address {addr_to_check} in logs")
                 if line[2] == "Hello":
                     valid_address = True
-                    print(f"Address {addr_to_check} is eligible for consumption")
     else:
         valid_address = True
     

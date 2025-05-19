@@ -39,7 +39,7 @@ def count_domain_messages():
     domain_messages = {}
     
     try:
-        with open("src/platform-code/log.csv", "r") as f:
+        with open("src/platform_code/log.csv", "r") as f:
             for line in f:
                 line = line.strip()
                 if not line:
