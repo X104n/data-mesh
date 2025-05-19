@@ -1,7 +1,7 @@
 import json
 
 # Local imports
-from .auther import client_authenticate
+from .authenticate import client_authenticate
 from .logger import log
 from config import IP_ADDRESSES
 

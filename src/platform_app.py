@@ -3,7 +3,7 @@ import socket
 import json
 
 from config import socket_setup
-from platform_code import auther, gateway, logger
+from platform_code import authenticate, gateway, logger
 
 zero_trust = False
 

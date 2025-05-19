@@ -1,1 +1,1 @@
-"""Self-serve platform"""
+"""Implementations by the platform"""
