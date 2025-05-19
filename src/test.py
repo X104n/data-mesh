@@ -44,4 +44,17 @@ print("Last 2 lines:", last_2_lines)
 last_3_lines = read_last_n_lines(file, 3)
 print("Last 3 lines:", last_3_lines)
 
-file.close()
+last_lines = read_last_n_lines(file, 10)
+print(f"Last lines read: {len(last_lines)}")
+last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
+ip = "ip"
+valid_address = False
+
+for line in last_lines:
+    # Printing what number of lines we are checking
+    print(f"Checking line: {line}")
+    if line[2] == ip:
+        if line[3] == "bruh":
+            valid_address = True
+
+print(f"Valid address: {valid_address}")
