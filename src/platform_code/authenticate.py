@@ -44,12 +44,19 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
     valid_address = False
 
     if zero_trust:
-        last_lines = deque(log_file, 10_000)
-        print(f"Last lines deque: {last_lines}")
-        last_lines = [line.strip().split(";") for line in last_lines]
-        print(f"Last lines: {last_lines}")
+        # Reset file pointer to the beginning before reading
+        log_file.seek(0)
+        
+        # Now read the contents
+        last_lines = list(log_file)
+        print(f"Last lines from file: {last_lines}")
+        
+        # Parse the lines
+        last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
+        print(f"Parsed lines: {last_lines}")
+        
         for line in last_lines:
-            if line[1] == addr_to_check:
+            if len(line) >= 3 and line[1] == addr_to_check:
                 print(f"Found matching address: {addr_to_check}")
                 if line[2] == "Hello":
                     print(f"Hello message found for address: {addr_to_check}")
