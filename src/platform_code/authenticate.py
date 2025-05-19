@@ -3,41 +3,41 @@ from .logger import log
 from collections import deque
 
 def _read_last_n_lines(f, n=1):
-        f.seek(0, 2)  # Go to the end of the file
-        size = f.tell()
+    f.seek(0, 2)  # Go to the end of the file
+    size = f.tell()
+    
+    if size == 0:  # Empty file
+        return []
         
-        if size == 0:  # Empty file
-            return []
-            
-        # Start from the end
-        position = size - 1
-        newlines_found = 0
-        
-        # Find the start of the nth-to-last line
-        while position >= 0:
-            f.seek(position)
-            char = f.read(1)
-            if char == b'\n':
-                newlines_found += 1
-                if newlines_found == n and position > 0:
-                    # Found the nth newline from the end
-                    position += 1
-                    break
-            position -= 1
-            
-        # If we went all the way to the beginning, start from there
-        if position < 0:
-            position = 0
-            
-        # Read the last n lines
+    # Start from the end
+    position = size - 1
+    newlines_found = 0
+    
+    # Find the start of the nth-to-last line
+    while position >= 0:
         f.seek(position)
-        last_chunk = f.read().decode('utf-8')
-        last_lines = last_chunk.splitlines()
+        char = f.read(1)
+        if char == '\n':  # String newline instead of bytes
+            newlines_found += 1
+            if newlines_found == n and position > 0:
+                # Found the nth newline from the end
+                position += 1
+                break
+        position -= 1
         
-        # If we have more lines than requested, return only the last n
-        if len(last_lines) > n:
-            return last_lines[-n:]
-        return last_lines
+    # If we went all the way to the beginning, start from there
+    if position < 0:
+        position = 0
+        
+    # Read the last n lines
+    f.seek(position)
+    last_chunk = f.read()  # No need to decode, already a string
+    last_lines = last_chunk.splitlines()
+    
+    # If we have more lines than requested, return only the last n
+    if len(last_lines) > n:
+        return last_lines[-n:]
+    return last_lines
 
 def client_authenticate(action, addr_to_check, domain_client_socket):
     try:
