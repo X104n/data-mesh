@@ -22,62 +22,40 @@ def start_listening(server):
             log_file.close()
             break
 
-def handle_client(conn):
+def handle_client(socket_connection):
     try:
         while True:
-            request_type = conn.recv(1024).decode()
+            request_type = socket_connection.recv(1024).decode()
 
             if not request_type:
                 break
             elif request_type == "hello":
-                addr = conn.getpeername()[0]
-
-                # Add domain to json file.
-                with open("src/platform_code/marketplace.json", "r") as f:
-                    marketplace = json.load(f)
-
-                if addr not in marketplace:
-                    marketplace[addr] = {
-                        "domain": addr,
-                        "products": []
-                    }
-                    with open("src/platform_code/marketplace.json", "w") as f:
-                        json.dump(marketplace, f, indent=4)
-                logger.log("Hello", addr)
-
-                conn.sendall(b"ok")
-
-            elif request_type == "get_mesh":
-                print("Sending mesh data")
-                with open("src/platform_code/marketplace.json", "r") as f:
-                    marketplace = json.load(f)
-                mesh_data = json.dumps(list(marketplace.keys())).encode()
-                conn.sendall(mesh_data)
+                socket_connection.sendall(b"ok")
+                gateway.server_hello(socket_connection)
 
             elif request_type == "discover/registration":
-                conn.sendall(b"ok")
-                gateway.platform_discover_registration(conn)
+                socket_connection.sendall(b"ok")
+                gateway.platform_discover_registration(socket_connection)
 
             elif request_type == "discover":
-                print("Received discover")
-                conn.sendall(b"ok")
-                gateway.platform_discover_products(conn, zero_trust)
+                socket_connection.sendall(b"ok")
+                gateway.server_discover_products(socket_connection, zero_trust)
 
             elif request_type == "authenticate":
-                print("Received authentication request")
-                conn.sendall(b"ok")
-                if not auther.server_authenticate(conn, zero_trust, log_file):
-                    print("Authentication failed")
-                    conn.sendall(b"authentication failed")
-                else:
-                    conn.sendall(b"ok")
+                socket_connection.sendall(b"ok")
 
-            print(f"Received request: {request_type}")
+                authentication_response = authenticate.server_authenticate(socket_connection, zero_trust, log_file)
+                if authentication_response == "Accepted":
+                    socket_connection.sendall(b"ok")
+                elif authentication_response == "Rejected":
+                    socket_connection.sendall(b"authentication rejected")
+                else:
+                    socket_connection.sendall(b"error")
             break
     except Exception as e:
         print(f"Error handling client: {e}")
     finally:
-        conn.close()
+        socket_connection.close()
 
 if __name__ == "__main__":
     zero_trust = input("Do you want to enable zero trust? (y/n): ").strip().lower() == 'y'

@@ -20,20 +20,22 @@ Functions used by the domains
 '''
 def client_hello(domain_client):
         platform_ip = _get_platform_ip()
-
         domain_client.connect((platform_ip, 9000))
+
         domain_client.sendall(b"hello")
-        data = domain_client.recv(1024)
-        if data == b"ok":
-            return True
+        response = domain_client.recv(1024).decode()
+
+        if response == "ok":
+            hello_success = domain_client.recv(1024)
+            if hello_success == b"ok":
+                return True
         return False
         
 def client_discover_products(socket):
     try:
         platform_ip = _get_platform_ip()
-
-        # Connect to the platform and get the mesh products
         socket.connect((platform_ip, 9000))
+
         socket.sendall(b"discover")
         response = socket.recv(1024).decode()
         
@@ -140,9 +142,26 @@ Functions used by the platform
 =========================
 '''
 
-def platform_discover_products(domain_server, zero_trust):
+def server_hello(client_socket):
+    addr = client_socket.getpeername()[0]
+
+    with open("src/platform_code/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+
+    if addr not in marketplace:
+        marketplace[addr] = {
+            "domain": addr,
+            "products": []
+        }
+        with open("src/platform_code/marketplace.json", "w") as f:
+            json.dump(marketplace, f, indent=4)
+    _log_helper("Hello", addr)
+
+    client_socket.sendall(b"ok")
+
+def server_discover_products(domain_server_socket, zero_trust):
     if zero_trust:
-        _log_helper("Discovering products", domain_server)
+        _log_helper("Discovering products", domain_server_socket)
 
     # Get the mesh products from the marketplace JSON file
     with open("src/platform_code/marketplace.json", "r") as f:
@@ -157,7 +176,7 @@ def platform_discover_products(domain_server, zero_trust):
     
     # Convert to JSON and send
     json_data = json.dumps(product_domain_pairs).encode()
-    domain_server.sendall(json_data)
+    domain_server_socket.sendall(json_data)
             
 def platform_discover_registration(domain_server):
     _log_helper("Discovering registration", domain_server)

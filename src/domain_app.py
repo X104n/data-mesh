@@ -7,7 +7,7 @@ import threading
 # Local imports
 from config import socket_setup
 from domain import DataProduct, Artifact
-from platform1 import gateway
+from platform_code import gateway
 
 # Global variable
 products = []
