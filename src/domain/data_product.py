@@ -6,7 +6,6 @@ class DataProduct:
         self.artifacts = artifacts
     
     def to_dict(self):
-        """Convert DataProduct to dictionary for JSON serialization"""
         return {
             "data_id": self.data_id,
             "name": self.name,

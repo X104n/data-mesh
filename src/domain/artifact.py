@@ -6,7 +6,6 @@ class Artifact:
         self.data = data if data else {}
     
     def to_dict(self):
-        """Convert Artifact to dictionary for JSON serialization"""
         return {
             "data_id": self.data_id,
             "name": self.name,

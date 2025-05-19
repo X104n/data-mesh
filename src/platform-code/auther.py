@@ -4,7 +4,7 @@ from collections import deque
 
 def client_authenticate(action, addr_to_check, socket):
     try:
-        with open("src/platform1/marketplace.json", "r") as f:
+        with open("src/platform-code/marketplace.json", "r") as f:
             marketplace = json.load(f)
         platform_ip = marketplace["platform"]["domain"]
         

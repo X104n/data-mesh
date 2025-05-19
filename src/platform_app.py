@@ -33,7 +33,7 @@ def handle_client(conn):
                 addr = conn.getpeername()[0]
 
                 # Add domain to json file.
-                with open("src/platform1/marketplace.json", "r") as f:
+                with open("src/platform-code/marketplace.json", "r") as f:
                     marketplace = json.load(f)
 
                 if addr not in marketplace:
@@ -41,7 +41,7 @@ def handle_client(conn):
                         "domain": addr,
                         "products": []
                     }
-                    with open("src/platform1/marketplace.json", "w") as f:
+                    with open("src/platform-code/marketplace.json", "w") as f:
                         json.dump(marketplace, f, indent=4)
                 logger.log("Hello", addr)
 
@@ -49,7 +49,7 @@ def handle_client(conn):
 
             elif request_type == "get_mesh":
                 print("Sending mesh data")
-                with open("src/platform1/marketplace.json", "r") as f:
+                with open("src/platform-code/marketplace.json", "r") as f:
                     marketplace = json.load(f)
                 mesh_data = json.dumps(list(marketplace.keys())).encode()
                 conn.sendall(mesh_data)
@@ -82,26 +82,26 @@ def handle_client(conn):
 if __name__ == "__main__":
     zero_trust = input("Do you want to enable zero trust? (y/n): ").strip().lower() == 'y'
 
-    with open("src/platform1/marketplace.json", "w") as f:
+    with open("src/platform-code/marketplace.json", "w") as f:
         json.dump({}, f, indent=4)
     logger.reset_log_file()
 
     server = socket_setup()
 
-    log_file = open("src/platform1/log.txt", "a")
+    log_file = open("src/platform-code/log.txt", "a")
     '''
     Wrinting the platforms ip to the marketplace
     ====================
     '''
     host = server.getsockname()[0]
-    with open("src/platform1/marketplace.json", "r") as f:
+    with open("src/platform-code/marketplace.json", "r") as f:
         marketplace = json.load(f)
     if "platform" not in marketplace:
         marketplace["platform"] = {
             "domain": host,
             "products": []
         }
-        with open("src/platform1/marketplace.json", "w") as f:
+        with open("src/platform-code/marketplace.json", "w") as f:
             json.dump(marketplace, f, indent=4)
     print(f"Host and port {host}:{server.getsockname()[1]}")
     '''
