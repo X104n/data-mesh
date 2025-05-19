@@ -36,7 +36,7 @@ def read_last_n_lines(f, n=1):
         return last_lines
 
 
-file = open("test_log.txt", "rb")
+file = open("test_log.csv", "rb")
 # Example usage
 last_2_lines = read_last_n_lines(file, 2)
 print("Last 2 lines:", last_2_lines)

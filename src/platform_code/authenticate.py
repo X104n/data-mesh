@@ -2,6 +2,43 @@ import json
 from .logger import log
 from collections import deque
 
+def _read_last_n_lines(f, n=1):
+        f.seek(0, 2)  # Go to the end of the file
+        size = f.tell()
+        
+        if size == 0:  # Empty file
+            return []
+            
+        # Start from the end
+        position = size - 1
+        newlines_found = 0
+        
+        # Find the start of the nth-to-last line
+        while position >= 0:
+            f.seek(position)
+            char = f.read(1)
+            if char == b'\n':
+                newlines_found += 1
+                if newlines_found == n and position > 0:
+                    # Found the nth newline from the end
+                    position += 1
+                    break
+            position -= 1
+            
+        # If we went all the way to the beginning, start from there
+        if position < 0:
+            position = 0
+            
+        # Read the last n lines
+        f.seek(position)
+        last_chunk = f.read().decode('utf-8')
+        last_lines = last_chunk.splitlines()
+        
+        # If we have more lines than requested, return only the last n
+        if len(last_lines) > n:
+            return last_lines[-n:]
+        return last_lines
+
 def client_authenticate(action, addr_to_check, domain_client_socket):
     try:
         with open("src/platform_code/marketplace.json", "r") as f:
@@ -44,16 +81,10 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
     valid_address = False
 
     if zero_trust:
-        # Reset file pointer to the beginning before reading
-        log_file.seek(0)
-        
-        # Now read the contents
-        last_lines = list(log_file)
-        print(f"Last lines from file: {last_lines}")
+        last_lines = _read_last_n_lines(log_file, 10_000)
         
         # Parse the lines
         last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
-        print(f"Parsed lines: {last_lines}")
         
         for line in last_lines:
             if len(line) >= 3 and line[1] == addr_to_check:
