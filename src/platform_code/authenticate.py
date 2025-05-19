@@ -86,8 +86,6 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
         last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
         
         for line in last_lines:
-            # Printing what number of lines we are checking
-            print(f"Checking line: {line}")
             if line[1] == addr_to_check:
                 if line[2] == "Hello":
                     valid_address = True
