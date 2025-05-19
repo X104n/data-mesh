@@ -155,7 +155,7 @@ def server_hello(client_socket):
         }
         with open("src/platform_code/marketplace.json", "w") as f:
             json.dump(marketplace, f, indent=4)
-    _log_helper("Hello", addr)
+    _log_helper("Hello", client_socket)
 
     client_socket.sendall(b"ok")
 
