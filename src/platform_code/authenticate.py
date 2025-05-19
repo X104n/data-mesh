@@ -45,6 +45,7 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
 
     if zero_trust:
         last_lines = deque(log_file, 10_000)
+        print(f"Last lines deque: {last_lines}")
         last_lines = [line.strip().split(";") for line in last_lines]
         print(f"Last lines: {last_lines}")
         for line in last_lines:
