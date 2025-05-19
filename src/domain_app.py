@@ -171,11 +171,13 @@ if __name__ == "__main__":
         product = gateway.client_consume(product_name, domain, consume_client)
         
         if product is None:
+            print("Error in consuming data")
             time_keeping(start_time, "No product found")
             time.sleep(1)
             continue
 
         elif product == "Authentication rejected":
+            print("Authentication rejected")
             time_keeping(start_time, "Authentication rejected")
 
             hello_client = socket_setup(server=False)
