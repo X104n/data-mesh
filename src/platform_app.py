@@ -45,6 +45,7 @@ def handle_client(socket_connection):
                 socket_connection.sendall(b"ok")
 
                 authentication_response = authenticate.server_authenticate(socket_connection, zero_trust, log_file)
+                print(f"Authentication response: {authentication_response}")
                 if authentication_response == "Accepted":
                     socket_connection.sendall(b"ok")
                 elif authentication_response == "Rejected":
@@ -66,9 +67,9 @@ if __name__ == "__main__":
 
     server = socket_setup()
 
-    log_file = open("src/platform_code/log.txt", "a")
+    log_file = open("src/platform_code/log.txt", "rw")
     '''
-    Wrinting the platforms ip to the marketplace
+    Writing the platforms ip to the marketplace
     ====================
     '''
     host = server.getsockname()[0]
