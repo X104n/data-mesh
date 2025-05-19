@@ -33,7 +33,7 @@ def client_authenticate(action, addr_to_check, socket):
     finally:
         socket.close()
 
-def server_authenticate(action, socket, zero_trust):
+def server_authenticate(action, socket, zero_trust, log_file):
 
     authentication_request = socket.recv(1024).decode()
     if not authentication_request:
@@ -46,9 +46,7 @@ def server_authenticate(action, socket, zero_trust):
     valid_address = False
 
     if zero_trust:
-        '''
-        with open("src/platform1/log.csv", "r") as f:
-            last_lines = deque(f, 1000)
+        last_lines = deque(log_file, 1000)
         last_lines = [line.strip().split(";") for line in last_lines]
     
         for line in last_lines:
@@ -57,7 +55,6 @@ def server_authenticate(action, socket, zero_trust):
                 if line[2] == "Hello":
                     valid_address = True
                     print(f"Address {addr_to_check} is eligible for consumption")
-        '''
         valid_address = True
     else:
         valid_address = True

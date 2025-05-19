@@ -19,6 +19,7 @@ def start_listening(server):
             continue
         except KeyboardInterrupt:
             print("Server shutting down...")
+            log_file.close()
             break
 
 def handle_client(conn):
@@ -65,7 +66,7 @@ def handle_client(conn):
             elif request_type == "authenticate":
                 print("Received authentication request")
                 conn.sendall(b"ok")
-                if not auther.server_authenticate("authenticate", conn, zero_trust):
+                if not auther.server_authenticate("authenticate", conn, zero_trust, log_file):
                     print("Authentication failed")
                     conn.sendall(b"authentication failed")
                 else:
@@ -86,6 +87,8 @@ if __name__ == "__main__":
     logger.reset_log_file()
 
     server = socket_setup()
+
+    log_file = open("src/platform1/log.txt", "a")
     '''
     Wrinting the platforms ip to the marketplace
     ====================
