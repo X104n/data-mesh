@@ -55,7 +55,6 @@ def server_authenticate(action, socket, zero_trust, log_file):
                 if line[2] == "Hello":
                     valid_address = True
                     print(f"Address {addr_to_check} is eligible for consumption")
-        valid_address = True
     else:
         valid_address = True
     
