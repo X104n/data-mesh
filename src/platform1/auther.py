@@ -46,7 +46,7 @@ def server_authenticate(action, socket, zero_trust, log_file):
     valid_address = False
 
     if zero_trust:
-        last_lines = deque(log_file, 1000)
+        last_lines = deque(log_file, 10_000)
         last_lines = [line.strip().split(";") for line in last_lines]
     
         for line in last_lines:
