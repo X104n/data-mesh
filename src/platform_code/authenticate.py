@@ -81,7 +81,7 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
     valid_address = False
 
     if zero_trust:
-        last_lines = _read_last_n_lines(log_file, 10_000)
+        last_lines = _read_last_n_lines(log_file, 3)
         print(f"Last lines read: {last_lines}")
         # Parse the lines
         last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
