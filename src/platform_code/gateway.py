@@ -5,18 +5,21 @@ from .auther import client_authenticate
 from .logger import log
 from config import IP_ADDRESSES
 
-def log_helper(message, socket):
+def _log_helper(message, socket):
     addr = socket.getpeername()[0]
     log(message, addr)
+
+def _get_platform_ip():
+    with open("src/platform_code/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+    return marketplace["platform"]["domain"]
 
 '''
 Functions used by the domains
 =========================
 '''
 def client_hello(domain_client):
-        with open("src/platform_code/marketplace.json", "r") as f:
-            marketplace = json.load(f)
-        platform_ip = marketplace["platform"]["domain"]
+        platform_ip = _get_platform_ip()
 
         domain_client.connect((platform_ip, 9000))
         domain_client.sendall(b"hello")
@@ -26,12 +29,8 @@ def client_hello(domain_client):
         return False
         
 def client_discover_products(socket):
-    """Used by a client socket to discover products from the marketplace"""
     try:
-        # Get platform ip from the JSON file
-        with open("src/platform_code/marketplace.json", "r") as f:
-            marketplace = json.load(f)
-        platform_ip = marketplace["platform"]["domain"]
+        platform_ip = _get_platform_ip()
 
         # Connect to the platform and get the mesh products
         socket.connect((platform_ip, 9000))
@@ -55,20 +54,18 @@ def client_discover_products(socket):
     
 def client_discover_registration(data_product, socket):
     try:
-        # Get platform ip from the JSON file
-        with open("src/platform_code/marketplace.json", "r") as f:
-            marketplace = json.load(f)
-        platform_ip = marketplace["platform"]["domain"]
-
-        # Connect to the platform and register the data product in the marketplace
+        platform_ip = _get_platform_ip()
         socket.connect((platform_ip, 9000))
+
         socket.sendall(b"discover/registration")
-        connection = socket.recv(1024).decode()
-        if connection == "ok":
+        response = socket.recv(1024).decode()
+
+        if response == "ok":
             socket.sendall(data_product.name.encode())
+
             response = socket.recv(1024).decode()
             if response == "ok":
-                print(f"Data product {data_product.name} registered successfully")
+                return
     except Exception as e:
         print(f"Error in client discover registration: {e}")
     finally:
@@ -81,11 +78,9 @@ def client_consume(product_name, product_domain, client_socket):
         
         request_received = client_socket.recv(1024).decode()
         if request_received == "ok":
-            print(f"Received request to consume {product_name} from {product_domain}")
             authenticated = client_socket.recv(1024).decode()
             
             if authenticated == "ok":
-                print(f"Authenticated for consumption of {product_name}")
                 client_socket.sendall(product_name.encode())
                 requested_product = client_socket.recv(1024).decode()
                 return requested_product
@@ -147,7 +142,7 @@ Functions used by the platform
 
 def platform_discover_products(domain_server, zero_trust):
     if zero_trust:
-        log_helper("Discovering products", domain_server)
+        _log_helper("Discovering products", domain_server)
 
     # Get the mesh products from the marketplace JSON file
     with open("src/platform_code/marketplace.json", "r") as f:
@@ -165,7 +160,7 @@ def platform_discover_products(domain_server, zero_trust):
     domain_server.sendall(json_data)
             
 def platform_discover_registration(domain_server):
-    log_helper("Discovering registration", domain_server)
+    _log_helper("Discovering registration", domain_server)
 
     # Get the address / ip of the domain server.
     addr = domain_server.getpeername()[0]

@@ -54,18 +54,16 @@ def server_authenticate(socket, zero_trust, log_file):
     
     if valid_address:
         if action == "discover":
-            print(f"Address {addr_to_check} is eligible for discovery")
             log("Authentication accept to discover request", addr_to_check)
             return True
         elif action == "consume":
-            print(f"Address {addr_to_check} is eligible for consumption")
             log("Authentication accept to consume request", addr_to_check)
             return True
-        socket.sendall(b"error")
-        log("Authentication error", addr_to_check)
-        return False
+        else:
+            socket.sendall(b"error")
+            log("Authentication error", addr_to_check)
+            return False
     else:
-        print(f"Address {addr_to_check} is REJECTED - not in logs")
         log("Authentication reject", addr_to_check)
         socket.sendall(b"authentication failed")
         return False
