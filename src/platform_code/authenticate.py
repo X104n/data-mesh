@@ -2,24 +2,26 @@ import json
 from .logger import log
 from collections import deque
 
-def client_authenticate(action, addr_to_check, socket):
+def client_authenticate(action, addr_to_check, domain_client_socket):
     try:
         with open("src/platform_code/marketplace.json", "r") as f:
             marketplace = json.load(f)
         platform_ip = marketplace["platform"]["domain"]
         
-        socket.connect((platform_ip, 9000))
-        socket.sendall("authenticate".encode())
-        request_received = socket.recv(1024).decode()
+        domain_client_socket.connect((platform_ip, 9000))
+        domain_client_socket.sendall("authenticate".encode())
+        request_received = domain_client_socket.recv(1024).decode()
         
         if request_received == "ok":
             auth_msg = f"{action}/{addr_to_check}"
-            socket.sendall(auth_msg.encode())
+            domain_client_socket.sendall(auth_msg.encode())
             
-            auth_response = socket.recv(1024).decode()
+            auth_response = domain_client_socket.recv(1024).decode()
             if auth_response == "ok":
+                print(f"Authentication successful for action: {action}")
                 return True
             elif auth_response == "authentication rejected":
+                print(f"Authentication rejected for action: {action}")
                 return False
             else:
                 print(f"Authentication failed for action: {action} - response: {auth_response}")
@@ -31,10 +33,10 @@ def client_authenticate(action, addr_to_check, socket):
         print(f"Exception during authentication: {e}")
         return False
     finally:
-        socket.close()
+        domain_client_socket.close()
 
-def server_authenticate(socket, zero_trust, log_file):
-    authentication_request = socket.recv(1024).decode()
+def server_authenticate(platform_server_socket, zero_trust, log_file):
+    authentication_request = platform_server_socket.recv(1024).decode()
     if not authentication_request:
         return "No data"
 

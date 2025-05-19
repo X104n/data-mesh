@@ -87,7 +87,7 @@ def client_consume(product_name, product_domain, client_socket):
                 requested_product = client_socket.recv(1024).decode()
                 return requested_product
             
-            elif authenticated == "Authentication failed":
+            elif authenticated == "Authentication rejected":
                 return authenticated
             
             else:
@@ -111,7 +111,7 @@ def server_consume(server_socket, products, client_socket, zero_trust):
     if zero_trust:
         addr = server_socket.getpeername()[0]
         if not client_authenticate("consume", addr, client_socket):
-            server_socket.sendall(b"Authentication failed")
+            server_socket.sendall(b"Authentication rejected")
             return
         print(f"Address {addr} is eligible for consumption zt")
         server_socket.sendall(b"ok")
