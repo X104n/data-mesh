@@ -178,10 +178,8 @@ if __name__ == "__main__":
         elif product == "Authentication failed":
             time_keeping(start_time, "Authentication failed")
 
-            start_time = time.time()
             hello_client = socket_setup(server=False)
             gateway.client_hello(hello_client)
-            time_keeping(start_time, "Domain hello")
             continue
 
         time_keeping(start_time, True)
