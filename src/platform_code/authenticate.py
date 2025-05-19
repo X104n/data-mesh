@@ -86,9 +86,7 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
         
         for line in last_lines:
             if len(line) >= 3 and line[1] == addr_to_check:
-                print(f"Found matching address: {addr_to_check}")
                 if line[2] == "Hello":
-                    print(f"Hello message found for address: {addr_to_check}")
                     valid_address = True
     else:
         valid_address = True
