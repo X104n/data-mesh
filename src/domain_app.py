@@ -131,7 +131,7 @@ if __name__ == "__main__":
     '''
     input("Press Enter to start consuming products from the mesh...")
 
-    for i in range(0, 10_000):
+    for i in range(0, 1_000_000):
         start_time = time.time()
 
         discover_client_socket = socket_setup(server=False)
