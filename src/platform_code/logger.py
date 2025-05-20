@@ -1,4 +1,5 @@
 import datetime
+from .lock import log_lock
 
 def reset_log_file():
     try:
@@ -10,7 +11,8 @@ def reset_log_file():
 def log(message, domain):
     try:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
-        with open("src/platform_code/log.csv", 'a') as log_file:
-            log_file.write(f"{timestamp};{domain};{message}\n")
+        with log_lock:
+            with open("src/platform_code/log.csv", 'a') as log_file:
+                log_file.write(f"{timestamp};{domain};{message}\n")
     except Exception as e:
         print(f"Error writing to log file: {e}")

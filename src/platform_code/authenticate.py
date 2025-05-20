@@ -1,5 +1,6 @@
 import json
 from .logger import log
+from .lock import log_lock
 
 def _read_last_n_lines(f, n=1):
     f.seek(0, 2)
@@ -75,14 +76,15 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
     valid_address = False
 
     if zero_trust:
-        last_lines = _read_last_n_lines(log_file, 1_000)
-        print(f"Last lines read: {len(last_lines)}")
-        last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
-        
-        for line in last_lines:
-            if len(line) >= 3 and line[1] == addr_to_check:
-                if line[2] == "Hello":
-                    valid_address = True
+        with log_lock:
+            last_lines = _read_last_n_lines(log_file, 1_000)
+            print(f"Last lines read: {len(last_lines)}")
+            last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
+            
+            for line in last_lines:
+                if len(line) >= 3 and line[1] == addr_to_check:
+                    if line[2] == "Hello":
+                        valid_address = True
     else:
         valid_address = True
     
