@@ -23,6 +23,7 @@ def _read_last_n_lines(f, n=1):
     if position < 0:
         position = 0
 
+    print(f"Position: {position}")
     f.seek(position)
     last_chunk = f.read()
     text = last_chunk.decode()
