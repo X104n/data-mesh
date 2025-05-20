@@ -7,13 +7,11 @@ from platform_code import authenticate, gateway, logger
 
 zero_trust = False
 
-def start_listening(server):
-    server.settimeout(1)
+def start_listening(server_socket):
+    server_socket.settimeout(1)
     while True:
         try:
-            conn, addr = server.accept()
-            print(f"Connection from {addr} has been established!")
-            
+            conn, addr = server_socket.accept()
             threading.Thread(target=handle_client, args=(conn,)).start()
         except socket.timeout:
             continue
@@ -31,11 +29,11 @@ def handle_client(socket_connection):
                 break
             elif request_type == "hello":
                 socket_connection.sendall(b"ok")
-                gateway.server_hello(socket_connection)
+                gateway.server_hello(socket_connection, zero_trust)
 
             elif request_type == "discover/registration":
                 socket_connection.sendall(b"ok")
-                gateway.platform_discover_registration(socket_connection)
+                gateway.platform_discover_registration(socket_connection, zero_trust)
 
             elif request_type == "discover":
                 socket_connection.sendall(b"ok")
@@ -45,7 +43,6 @@ def handle_client(socket_connection):
                 socket_connection.sendall(b"ok")
 
                 authentication_response = authenticate.server_authenticate(socket_connection, zero_trust, log_file)
-                print(f"Authentication response: {authentication_response}")
                 if authentication_response == "Accepted":
                     socket_connection.sendall(b"ok")
                 elif authentication_response == "Rejected":

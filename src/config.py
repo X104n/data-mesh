@@ -26,7 +26,6 @@ def choose_from_list(prompt, options):
 def ip_setup():
     chosen_ip = choose_from_list("Choose an IP address:", IP_ADDRESSES)
     ip = IP_ADDRESSES[chosen_ip]
-    
     return ip
 
 def socket_setup(server=True):

@@ -30,39 +30,36 @@ def _create_artifact(number: int, data_product=None, data={"key": "value"}):
         data=data,
     )
 
-def handle_client(domain_server):
-    while True:
-        request_type = domain_server.recv(1024).decode()
-        if not request_type:
-            break
-        elif request_type == "consume":
-            print("Received consume request")
-            domain_server.sendall(b"ok")
-
-            auth_client_socket = socket_setup(server=False)
-            gateway.server_consume(domain_server, products, auth_client_socket, zero_trust)
-            break
-        else:
-            print(f"Unknown request type: {request_type}")
-        break
-
-    print(f"Connection with {domain_server.getpeername()[0]} closed")
-    domain_server.close()
-
-def start_listening(server):
-    """Start listening, and create new thread for each connection"""
-    server.settimeout(1)
+def start_listening(server_socket):
+    server_socket.settimeout(1)
     while True:
         try:
-            conn, addr = server.accept()
-            print(f"Connection from {addr} has been established!")
-            
+            conn, addr = server_socket.accept()
             threading.Thread(target=handle_client, args=(conn,), daemon=True).start()
         except socket.timeout:
             continue
         except KeyboardInterrupt:
             print("Server shutting down...")
             break
+
+def handle_client(socket_connection):
+    try:
+        while True:
+            request_type = socket_connection.recv(1024).decode()
+            if not request_type:
+                break
+            elif request_type == "consume":
+                socket_connection.sendall(b"ok")
+
+                auth_client_socket = socket_setup(server=False)
+                gateway.server_consume(socket_connection, products, auth_client_socket, zero_trust)
+                break
+            else:
+                print(f"Unknown request type: {request_type}")
+            break
+    finally:
+        print(f"Closing connection with {socket_connection.getpeername()}")
+        socket_connection.close()
 
 def time_keeping(start_time, message=None):
     end_time = time.time()
@@ -136,11 +133,8 @@ if __name__ == "__main__":
     input("Press Enter to start consuming products from the mesh...")
 
     for i in range(0, 10_000):
-        print("Consume product start")
-
         start_time = time.time()
 
-        # Visit the marketplace to get all the mesh products
         discover_client = socket_setup(server=False)
         mesh_products_json = gateway.client_discover_products(discover_client)
         if mesh_products_json is None:
@@ -148,15 +142,11 @@ if __name__ == "__main__":
             time.sleep(1)
             continue
         mesh_products = json.loads(mesh_products_json)
-        print(f"Mesh products: {mesh_products}")
 
-        # Remove own product(s)
         choose_products = []
         for product in mesh_products:
             if product[1] != domain_ip:
                 choose_products.append(product)
-
-        print(f"Products not including this domains product: {choose_products}")
         
         if len(choose_products) == 0:
             time_keeping(start_time, "No products to consume")
@@ -164,22 +154,18 @@ if __name__ == "__main__":
             continue
         else:
             chosen_product = choose_products[i % len(choose_products)]
-            print(f"Chosen product: {chosen_product}")
 
-        # Get the product from the domain
         consume_client = socket_setup(server=False)
         product_name = chosen_product[0]
         domain = chosen_product[1]
         product = gateway.client_consume(product_name, domain, consume_client)
         
         if product is None:
-            print("Error in consuming data")
             time_keeping(start_time, "No product found")
             time.sleep(1)
             continue
 
         elif product == "Authentication rejected":
-            print("Authentication rejected")
             time_keeping(start_time, "Authentication rejected")
 
             hello_client = socket_setup(server=False)
