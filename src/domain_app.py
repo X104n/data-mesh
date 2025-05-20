@@ -35,7 +35,7 @@ def start_listening(server_socket):
     while True:
         try:
             conn, addr = server_socket.accept()
-            threading.Thread(target=handle_client, args=(conn,), daemon=True).start()
+            threading.Thread(target=handle_client, args=(conn,)).start()
         except socket.timeout:
             continue
         except KeyboardInterrupt:
@@ -58,7 +58,6 @@ def handle_client(socket_connection):
                 print(f"Unknown request type: {request_type}")
             break
     finally:
-        print(f"Closing connection with {socket_connection.getpeername()}")
         socket_connection.close()
 
 def time_keeping(start_time, message=None):
