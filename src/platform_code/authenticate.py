@@ -2,8 +2,7 @@ import json
 from .logger import log
 from .lock import log_lock
 
-def _read_last_n_lines(f, n=1):
-    f.seek(0, 2)
+def _read_last_n_lines(f, n):
     size = f.tell()
     if size == 0:
         return []
@@ -38,6 +37,7 @@ def client_authenticate(action, addr_to_check, domain_client_socket):
         
         domain_client_socket.connect((platform_ip, 9000))
         domain_client_socket.sendall("authenticate".encode())
+
         request_received = domain_client_socket.recv(1024).decode()
         
         if request_received == "ok":
@@ -46,10 +46,8 @@ def client_authenticate(action, addr_to_check, domain_client_socket):
             
             auth_response = domain_client_socket.recv(1024).decode()
             if auth_response == "ok":
-                print(f"Authentication successful for action: {action}")
                 return True
             elif auth_response == "authentication rejected":
-                print(f"Authentication rejected for action: {action}")
                 return False
             else:
                 print(f"Authentication failed for action: {action} - response: {auth_response}")
@@ -74,7 +72,6 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
     if zero_trust:
         with log_lock:
             last_lines = _read_last_n_lines(log_file, 1_000)
-        print(f"Last lines read: {len(last_lines)}")
         last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
         
         for line in last_lines:

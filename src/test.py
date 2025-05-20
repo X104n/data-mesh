@@ -1,7 +1,6 @@
 import time
 
 def _read_last_n_lines(f, n=1):
-    f.seek(0, 2)
     size = f.tell()
     if size == 0:
         return []
