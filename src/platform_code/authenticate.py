@@ -3,6 +3,7 @@ from .logger import log
 from .lock import log_lock
 
 def _read_last_n_lines(f, n):
+    f.seek(0, 2)
     size = f.tell()
     if size == 0:
         return []
@@ -73,7 +74,7 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
         with log_lock:
             last_lines = _read_last_n_lines(log_file, 1_000)
         last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
-        
+        print(f"Last lines read: {len(last_lines)}")
         for line in last_lines:
             if len(line) >= 3 and line[1] == addr_to_check:
                 if line[2] == "Hello":
