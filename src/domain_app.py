@@ -52,7 +52,7 @@ def handle_client(socket_connection):
                 socket_connection.sendall(b"ok")
 
                 auth_client_socket = socket_setup(server=False)
-                gateway.server_consume(socket_connection, products, auth_client_socket, zero_trust)
+                gateway.server_consume(socket_connection, auth_client_socket, products, zero_trust)
                 break
             else:
                 print(f"Unknown request type: {request_type}")
@@ -66,7 +66,7 @@ def time_keeping(start_time, message=None):
     elapsed_time = end_time - start_time
     print("=====================\n")
     print(f"Elapsed time: {elapsed_time} seconds")
-    if message == None:
+    if message is None:
         print("No product found")
     print("\n=====================")
 
@@ -123,9 +123,9 @@ if __name__ == "__main__":
     Make the data product discoverable
     ==========================
     '''
-    register_client = socket_setup(server=False)
-    gateway.client_discover_registration(data_product, register_client)
-    register_client.close()
+    register_client_socket = socket_setup(server=False)
+    gateway.client_discover_registration(register_client_socket, data_product)
+    register_client_socket.close()
     '''
     Choose products from the mesh on repeat
     ==========================
@@ -135,8 +135,8 @@ if __name__ == "__main__":
     for i in range(0, 10_000):
         start_time = time.time()
 
-        discover_client = socket_setup(server=False)
-        mesh_products_json = gateway.client_discover_products(discover_client)
+        discover_client_socket = socket_setup(server=False)
+        mesh_products_json = gateway.client_discover_products(discover_client_socket)
         if mesh_products_json is None:
             time_keeping(start_time, "Mesh products not found")
             time.sleep(1)
@@ -155,10 +155,10 @@ if __name__ == "__main__":
         else:
             chosen_product = choose_products[i % len(choose_products)]
 
-        consume_client = socket_setup(server=False)
+        consume_client_socket = socket_setup(server=False)
         product_name = chosen_product[0]
         domain = chosen_product[1]
-        product = gateway.client_consume(product_name, domain, consume_client)
+        product = gateway.client_consume(consume_client_socket, product_name, domain)
         
         if product is None:
             time_keeping(start_time, "No product found")
