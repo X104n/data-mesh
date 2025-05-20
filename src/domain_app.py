@@ -112,6 +112,7 @@ if __name__ == "__main__":
     '''
     hello_client = socket_setup(server=False)
     gateway.client_hello(hello_client)
+    hello_client.close()
     '''
     Create a data product and artifacts
     ==========================
@@ -127,6 +128,7 @@ if __name__ == "__main__":
     '''
     register_client = socket_setup(server=False)
     gateway.client_discover_registration(data_product, register_client)
+    register_client.close()
     '''
     Choose products from the mesh on repeat
     ==========================
@@ -182,6 +184,7 @@ if __name__ == "__main__":
 
             hello_client = socket_setup(server=False)
             gateway.client_hello(hello_client)
+            hello_client.close()
             continue
 
         time_keeping(start_time, True)
