@@ -78,13 +78,13 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
     if zero_trust:
         with log_lock:
             last_lines = _read_last_n_lines(log_file, 1_000)
-            print(f"Last lines read: {len(last_lines)}")
-            last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
-            
-            for line in last_lines:
-                if len(line) >= 3 and line[1] == addr_to_check:
-                    if line[2] == "Hello":
-                        valid_address = True
+        print(f"Last lines read: {len(last_lines)}")
+        last_lines = [line.strip().split(";") for line in last_lines if line.strip()]
+        
+        for line in last_lines:
+            if len(line) >= 3 and line[1] == addr_to_check:
+                if line[2] == "Hello":
+                    valid_address = True
     else:
         valid_address = True
     
