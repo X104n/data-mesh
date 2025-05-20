@@ -3,38 +3,32 @@ from .logger import log
 from collections import deque
 
 def _read_last_n_lines(f, n=1):
-    f.seek(0, 2)  # Go to the end of the file
+    f.seek(0, 2)
     size = f.tell()
-    
-    if size == 0:  # Empty file
+    if size == 0:
         return []
-        
-    # Start from the end
+
     position = size - 1
     newlines_found = 0
     
-    # Find the start of the nth-to-last line
     while position >= 0:
         f.seek(position)
         char = f.read(1)
-        if char == '\n':  # String newline instead of bytes
+        if char == '\n':
             newlines_found += 1
             if newlines_found == n and position > 0:
-                # Found the nth newline from the end
                 position += 1
                 break
         position -= 1
         
-    # If we went all the way to the beginning, start from there
     if position < 0:
         position = 0
-        
-    # Read the last n lines
+
+    print(f"Position: {position}")
     f.seek(position)
-    last_chunk = f.read()  # No need to decode, already a string
+    last_chunk = f.read()
     last_lines = last_chunk.splitlines()
-    
-    # If we have more lines than requested, return only the last n
+
     if len(last_lines) > n:
         return last_lines[-n:]
     return last_lines
