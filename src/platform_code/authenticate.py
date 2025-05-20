@@ -5,6 +5,7 @@ from collections import deque
 def _read_last_n_lines(f, n=1):
     f.seek(0, 2)
     size = f.tell()
+    print(f"File size: {size}")
     if size == 0:
         return []
 
@@ -14,7 +15,7 @@ def _read_last_n_lines(f, n=1):
     while position >= 0:
         f.seek(position)
         char = f.read(1)
-        if char == '\n':
+        if char.decode() == '\n':
             newlines_found += 1
             if newlines_found == n and position > 0:
                 position += 1
@@ -23,15 +24,6 @@ def _read_last_n_lines(f, n=1):
         
     if position < 0:
         position = 0
-
-    print(f"Position: {position}")
-    f.seek(position)
-    last_chunk = f.read()
-    last_lines = last_chunk.splitlines()
-
-    if len(last_lines) > n:
-        return last_lines[-n:]
-    return last_lines
 
 def client_authenticate(action, addr_to_check, domain_client_socket):
     try:
