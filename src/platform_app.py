@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     server = socket_setup()
 
-    log_file = open("src/platform_code/log.csv", "a+")
+    log_file = open("src/platform_code/log.csv", "a+b")
     '''
     Writing the platforms ip to the marketplace
     ====================
