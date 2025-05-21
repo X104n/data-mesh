@@ -14,6 +14,11 @@ def _get_platform_ip():
         marketplace = json.load(f)
     return marketplace["platform"]["domain"]
 
+def _get_marketplace():
+    with open("src/platform_code/marketplace.json", "r") as f:
+        marketplace = json.load(f)
+    return marketplace
+
 '''
 Functions used by the domains
 =========================
@@ -142,8 +147,7 @@ def server_hello(socket_connection, zero_trust):
     if zero_trust:
         _log_helper("Hello", socket_connection)
 
-    with open("src/platform_code/marketplace.json", "r") as f:
-        marketplace = json.load(f)
+    marketplace = _get_marketplace()
 
     addr = socket_connection.getpeername()[0]
     if addr not in marketplace:
@@ -159,8 +163,7 @@ def server_discover_products(socket_connection, zero_trust):
     if zero_trust:
         _log_helper("Discovering products", socket_connection)
 
-    with open("src/platform_code/marketplace.json", "r") as f:
-        marketplace = json.load(f)
+    marketplace = _get_marketplace()
 
     product_domain_pairs = []
     for domain in marketplace:
@@ -174,8 +177,7 @@ def platform_discover_registration(socket_connection, zero_trust):
     if zero_trust:
         _log_helper("Discovering registration", socket_connection)
 
-    with open("src/platform_code/marketplace.json", "r") as f:
-        marketplace = json.load(f)
+    marketplace = _get_marketplace()
 
     data_product_name = socket_connection.recv(1024).decode()
     addr = socket_connection.getpeername()[0]

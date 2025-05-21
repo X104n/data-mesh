@@ -57,6 +57,7 @@ def handle_client(socket_connection):
 
 if __name__ == "__main__":
     zero_trust = input("Do you want to enable zero trust? (y/n): ").strip().lower() == 'y'
+
     with open("src/platform_code/marketplace.json", "w") as f:
         json.dump({}, f, indent=4)
     logger.reset_log_file()
