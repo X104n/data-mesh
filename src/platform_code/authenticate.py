@@ -71,7 +71,6 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
     valid_address = False
 
     if zero_trust:
-        time.sleep(0.1)
         valid_address = True
     else:
         valid_address = True
