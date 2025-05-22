@@ -41,14 +41,8 @@ def handle_client(socket_connection):
 
             elif request_type == "authenticate":
                 socket_connection.sendall(b"ok")
+                authenticate.server_authenticate(socket_connection, zero_trust, log_file)
 
-                authentication_response = authenticate.server_authenticate(socket_connection, zero_trust, log_file)
-                if authentication_response == "Accepted":
-                    socket_connection.sendall(b"ok")
-                elif authentication_response == "Rejected":
-                    socket_connection.sendall(b"authentication rejected")
-                else:
-                    socket_connection.sendall(b"error")
             break
     except Exception as e:
         print(f"Error handling client: {e}")

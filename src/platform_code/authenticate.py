@@ -48,8 +48,6 @@ def client_authenticate(action, addr_to_check, domain_client_socket):
             auth_response = domain_client_socket.recv(1024).decode()
             if auth_response == "ok":
                 return True
-            elif auth_response == "authentication rejected":
-                return False
             else:
                 print(f"Authentication failed for action: {action} - response: {auth_response}")
                 return False
@@ -62,10 +60,11 @@ def client_authenticate(action, addr_to_check, domain_client_socket):
     finally:
         domain_client_socket.close()
 
-def server_authenticate(platform_server_socket, zero_trust, log_file):
+def server_authenticate(platform_server_socket, zero_trust):
     authentication_request = platform_server_socket.recv(1024).decode()
     if not authentication_request:
-        return "No data"
+        platform_server_socket.sendall(b"error")
+        return
 
     action, addr_to_check = authentication_request.split("/")
     valid_address = False
@@ -78,13 +77,17 @@ def server_authenticate(platform_server_socket, zero_trust, log_file):
     if valid_address:
         if action == "discover":
             log("Authentication accept to discover request", addr_to_check)
-            return "Accepted"
+            platform_server_socket.sendall(b"ok")
+            return
         elif action == "consume":
             log("Authentication accept to consume request", addr_to_check)
-            return "Accepted"
+            platform_server_socket.sendall(b"ok")
+            return
         else:
             log("Authentication error", addr_to_check)
-            return "Error"
+            platform_server_socket.sendall(b"error")
+            return
     else:
         log("Authentication reject", addr_to_check)
-        return "Rejected"
+        platform_server_socket.sendall(b"error")
+        return

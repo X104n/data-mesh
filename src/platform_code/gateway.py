@@ -116,7 +116,7 @@ def server_consume(socket_connection,client_socket , products, zero_trust):
 
     if zero_trust:
         if not client_authenticate("consume", addr, client_socket):
-            socket_connection.sendall(b"Authentication rejected")
+            socket_connection.sendall(b"error")
             return
         socket_connection.sendall(b"ok")
     else:
