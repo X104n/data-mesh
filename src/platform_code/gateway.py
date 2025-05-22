@@ -10,7 +10,7 @@ def _log_helper(message, socket):
     log(message, addr)
 
 def _get_platform_ip():
-    with open("src/platform_code/marketplace.json", "r") as f:
+    with open("src/platform_code/local_db.json", "r") as f:
         marketplace = json.load(f)
     return marketplace["platform"]["domain"]
 
