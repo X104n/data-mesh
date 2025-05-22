@@ -166,10 +166,6 @@ if __name__ == "__main__":
 
         elif product == "Authentication rejected":
             time_keeping(start_time, "Authentication rejected")
-
-            hello_client = socket_setup(server=False)
-            gateway.client_hello(hello_client)
-            hello_client.close()
             continue
 
         time_keeping(start_time, True)
