@@ -40,12 +40,15 @@ def client_authenticate(action, addr_to_check, domain_client_socket):
         domain_client_socket.sendall("authenticate".encode())
 
         request_received = domain_client_socket.recv(1024).decode()
+        print("Request received:", request_received)
         
         if request_received == "ok":
             auth_msg = f"{action}/{addr_to_check}"
+            print(f"Authentication message: {auth_msg}")
             domain_client_socket.sendall(auth_msg.encode())
             
             auth_response = domain_client_socket.recv(1024).decode()
+            print(f"Authentication response: {auth_response}")
             if auth_response == "ok":
                 return True
             else:
@@ -67,6 +70,7 @@ def server_authenticate(platform_server_socket, zero_trust):
         return
 
     action, addr_to_check = authentication_request.split("/")
+    print(f"Authentication request received: {action} - {addr_to_check}")
     valid_address = False
 
     if zero_trust:
@@ -75,11 +79,13 @@ def server_authenticate(platform_server_socket, zero_trust):
         valid_address = True
     
     if valid_address:
+        print("Valid address")
         if action == "discover":
             log("Authentication accept to discover request", addr_to_check)
             platform_server_socket.sendall(b"ok")
             return
         elif action == "consume":
+            print("Consuming")
             log("Authentication accept to consume request", addr_to_check)
             platform_server_socket.sendall(b"ok")
             return
