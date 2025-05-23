@@ -169,7 +169,7 @@ def server_discover_products(socket_connection, zero_trust):
     for domain in marketplace:
         if domain != "platform":
             for product in marketplace[domain]["products"]:
-                product_domain_pairs.append([product, domain])
+                product_domain_pairs.append((product, domain))
     json_data = json.dumps(product_domain_pairs).encode()
     socket_connection.sendall(json_data)
             
