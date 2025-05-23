@@ -1,34 +1,5 @@
 import json
-import time
 from .logger import log
-
-def _read_last_n_lines(f, n):
-    f.seek(0, 2)
-    size = f.tell()
-    if size == 0:
-        return []
-
-    position = size - 1
-    newlines_found = 0
-
-    while position >= 0:
-        f.seek(position)
-        char = f.read(1)
-        if char.decode() == '\n':
-            newlines_found += 1
-            if newlines_found == n and position > 0:
-                position += 1
-                break
-        position -= 1
-
-    if position < 0:
-        position = 0
-
-    f.seek(position)
-    last_chunk = f.read().decode()
-    last_lines = last_chunk.splitlines()
-
-    return last_lines
 
 def client_authenticate(action, addr_to_check, domain_client_socket):
     try:
