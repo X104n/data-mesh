@@ -91,10 +91,6 @@ def client_consume(client_socket, product_name, product_domain):
                 client_socket.sendall(product_name.encode())
                 requested_product = client_socket.recv(1024).decode()
                 return requested_product
-            
-            elif authenticated == "Authentication rejected":
-                return authenticated
-            
             else:
                 print(f"Error in authentication - Auth response: {authenticated}")
                 return None
