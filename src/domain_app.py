@@ -164,10 +164,6 @@ if __name__ == "__main__":
             time.sleep(1)
             continue
 
-        elif product == "Authentication rejected":
-            time_keeping(start_time, "Authentication rejected")
-            continue
-
         time_keeping(start_time, True)
         print(f"Product: {product}")
     '''

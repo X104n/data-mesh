@@ -41,7 +41,7 @@ def handle_client(socket_connection):
 
             elif request_type == "authenticate":
                 socket_connection.sendall(b"ok")
-                authenticate.server_authenticate(socket_connection, zero_trust)
+                authenticate.server_authenticate(socket_connection)
 
             break
     except Exception as e:

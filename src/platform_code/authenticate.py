@@ -31,19 +31,14 @@ def client_authenticate(action, addr_to_check, domain_client_socket):
     finally:
         domain_client_socket.close()
 
-def server_authenticate(platform_server_socket, zero_trust):
+def server_authenticate(platform_server_socket):
     authentication_request = platform_server_socket.recv(1024).decode()
     if not authentication_request:
         platform_server_socket.sendall(b"error")
         return
 
     action, addr_to_check = authentication_request.split("/")
-    valid_address = False
-
-    if zero_trust:
-        valid_address = True
-    else:
-        valid_address = True
+    valid_address = True
     
     if valid_address:
         if action == "discover":
