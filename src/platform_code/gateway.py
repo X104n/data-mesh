@@ -107,11 +107,11 @@ def client_consume(client_socket, product_name, product_domain):
     finally:
         client_socket.close()
     
-def server_consume(socket_connection,client_socket , products, zero_trust):
+def server_consume(socket_connection, client_socket, products, zero_trust):
     addr = socket_connection.getpeername()[0]
 
     if zero_trust:
-        if not client_authenticate("consume", addr, client_socket):
+        if not client_authenticate("consume", addr, client_socket) or client_socket is None:
             socket_connection.sendall(b"error")
             return
         socket_connection.sendall(b"ok")

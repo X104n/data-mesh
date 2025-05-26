@@ -51,8 +51,12 @@ def handle_client(socket_connection):
             elif request_type == "consume":
                 socket_connection.sendall(b"ok")
 
-                auth_client_socket = socket_setup(server=False)
+                if zero_trust:
+                    auth_client_socket = socket_setup(server=False)
+                else:
+                    auth_client_socket = None
                 gateway.server_consume(socket_connection, auth_client_socket, products, zero_trust)
+
                 break
             else:
                 print(f"Unknown request type: {request_type}")
