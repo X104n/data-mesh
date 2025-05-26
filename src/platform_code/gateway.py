@@ -111,7 +111,7 @@ def server_consume(socket_connection, client_socket, products, zero_trust):
     addr = socket_connection.getpeername()[0]
 
     if zero_trust:
-        if not client_authenticate("consume", addr, client_socket) or client_socket is None:
+        if not client_authenticate("consume", addr, client_socket):
             socket_connection.sendall(b"error")
             return
         socket_connection.sendall(b"ok")
