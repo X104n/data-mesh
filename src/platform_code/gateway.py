@@ -48,7 +48,7 @@ def client_discover_products(client_socket):
             products = client_socket.recv(1024).decode()
             return products
         elif response.startswith("ok"):
-            products = response[2:]  # Remove the "ok" part
+            products = response[2:]
             return products
         else:
             print("Error in discovering products:", response)
