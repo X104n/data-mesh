@@ -39,4 +39,6 @@ def socket_setup(server=True):
         sock.bind((host, port))
         sock.listen(10)
         print(f"Host and port {host}:{port}")
+    else:
+        sock.settimeout(2.0)
     return sock
