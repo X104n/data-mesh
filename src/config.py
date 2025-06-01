@@ -19,7 +19,7 @@ def choose_from_list(prompt, options):
         try:
             choice = int(input("Enter the number of your choice: "))
             if 1 <= choice <= len(options):
-                return choice - 1  # convert to zero-based index
+                return choice - 1
             else:
                 print(f"Invalid choice. Please enter a number between 1 and {len(options)}.")
         except ValueError:

@@ -31,11 +31,6 @@ def calculate_average_basic():
         print("No successful retrievals found")
 
 def count_domain_messages():
-    """
-    Analyze the logger file to count specific messages from each domain.
-    Prints a summary of message counts grouped by domain.
-    """
-    # Dictionary to store domain -> message -> count
     domain_messages = {}
     
     try:
@@ -44,34 +39,27 @@ def count_domain_messages():
                 line = line.strip()
                 if not line:
                     continue
-                
-                # Parse CSV format with semicolons: date, time;domain;message
                 parts = line.split(";")
-                if len(parts) < 3:  # Need at least timestamp, domain, message
+                if len(parts) < 3:
                     continue
                 
-                # Extract domain and message from semicolon-separated format
                 domain = parts[1]
                 message = parts[2]
                 
-                # Initialize domain dict if not exists
                 if domain not in domain_messages:
                     domain_messages[domain] = {}
                 
-                # Count this message
                 if message not in domain_messages[domain]:
                     domain_messages[domain][message] = 1
                 else:
                     domain_messages[domain][message] += 1
         
-        # Print results
         print("\n=== Domain Message Analysis ===")
         for domain, messages in domain_messages.items():
             print(f"\nDomain: {domain}")
             for message, count in sorted(messages.items(), key=lambda x: x[1], reverse=True):
                 print(f"  - {message}: {count} times")
         
-        # Print totals per domain
         print("\n=== Total Messages by Domain ===")
         for domain, messages in sorted(domain_messages.items(), 
                                       key=lambda x: sum(x[1].values()), 
