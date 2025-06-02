@@ -64,21 +64,16 @@ def handle_client(socket_connection):
     finally:
         socket_connection.close()
 
-def time_keeping(start_time, message=None):
+def time_keeping(start_time):
     end_time = time.time()
     elapsed_time = end_time - start_time
     print("=====================\n")
     print(f"Elapsed time: {elapsed_time} seconds")
-    if message is None:
-        print("No product found")
     print("\n=====================")
 
     with open("src/domain_app.csv", "a", newline='') as f:
         writer = csv.writer(f, delimiter=';')
-        if message is None:
-            writer.writerow([message])
-        else:
-            writer.writerow([elapsed_time])
+        writer.writerow([elapsed_time])
 
 if __name__ == "__main__":
     '''
@@ -142,8 +137,8 @@ if __name__ == "__main__":
         discover_client_socket = socket_setup(server=False)
         mesh_products_json = gateway.client_discover_products(discover_client_socket)
         if mesh_products_json is None:
-            time_keeping(start_time, "Mesh products not found")
             time.sleep(1)
+            time_keeping(start_time)
             continue
         mesh_products = json.loads(mesh_products_json)
 
@@ -153,8 +148,8 @@ if __name__ == "__main__":
                 choose_products.append(product)
         
         if len(choose_products) == 0:
-            time_keeping(start_time, "No products to consume")
             time.sleep(1)
+            time_keeping(start_time)
             continue
         else:
             chosen_product = choose_products[i % len(choose_products)]
@@ -165,11 +160,11 @@ if __name__ == "__main__":
         product = gateway.client_consume(consume_client_socket, product_name, domain)
         
         if product is None:
-            time_keeping(start_time, "No product found")
             time.sleep(1)
+            time_keeping(start_time)
             continue
 
-        time_keeping(start_time, True)
+        time_keeping(start_time)
         print(f"Product: {product}")
     '''
     Make sure the server do not exit
